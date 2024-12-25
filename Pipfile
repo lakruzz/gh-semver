@@ -4,10 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-gh-semver = {file = ".", editable = true}
+pytest = "*"
 
 [dev-packages]
-gh-semver = {file = "."}
+pytest = "*"
+pytest-cov = "*"
 
 [requires]
-python_version = "3.12"
+python_version = "*"

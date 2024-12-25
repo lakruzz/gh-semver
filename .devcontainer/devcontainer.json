@@ -7,7 +7,8 @@
 	"features": {
 		"ghcr.io/devcontainers/features/common-utils:2": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/devcontainers/features/python:1": {}
+		"ghcr.io/devcontainers/features/python:1": {},
+		"ghcr.io/hspaans/devcontainer-features/pytest:1": {}
 	},
 	"customizations": {
 		"vscode": {
@@ -16,9 +17,9 @@
 				"ms-python.python",
 				"ms-python.autopep8",
 				"ms-python.vscode-pylance"
-			]
+			]	
 		}
-	}
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
@@ -27,7 +28,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "uname -a",
+	"postCreateCommand": "./.devcontainer/postCreateCommand.sh"
 
 	// Configure tool-specific properties.
 	// "customizations": {},
