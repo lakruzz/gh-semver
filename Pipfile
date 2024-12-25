@@ -1,0 +1,13 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+gh-semver = {file = ".", editable = true}
+
+[dev-packages]
+gh-semver = {file = "."}
+
+[requires]
+python_version = "3.12"

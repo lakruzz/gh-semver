@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+
+pushd "$(dirname "$0")" > /dev/null
+
+# Attempt to get the virtual environment path
+pipenv --venv > /dev/null 2>&1
+
+# If pipenv --venv failed, it means no virtual environment exists
+if [ $? -ne 0 ]; then
+    echo "First time around - Setting up pipenv environment..."
+    pipenv sync > /dev/null 2>&1
+fi
+
+pipenv run python ./gh-semver.py "$@"
+
+popd > /dev/null

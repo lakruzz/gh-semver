@@ -1,0 +1,6 @@
+**/__pycache__
+**/sample*.md
+samples/**
+.pytest_cache/**
+logs/**
+gh_semver.egg-info
