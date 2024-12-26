@@ -55,11 +55,3 @@ if __name__ == "__main__":
         sys.exit(0)
 
 
-    
-    
-
-
-
-        print("Running in " + args.command + " subcommand mode.")
-
-
