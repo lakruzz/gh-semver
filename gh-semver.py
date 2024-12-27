@@ -8,11 +8,16 @@ import argparse
 class_path = os.path.dirname(os.path.abspath(__file__))+"/classes"
 sys.path.append(class_path)
 
+from semver import Semver
+
 
 if __name__ == "__main__":
 
     # Define command-line arguments
     parser = argparse.ArgumentParser()
+
+    # Add a global --verbose switch
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
 
     # create two sub commands  - bump and init. Bump should take one of three required withchs - --major, --minor and --patch
     # init should take two optional switches -  --prefix and --offset
@@ -32,8 +37,12 @@ if __name__ == "__main__":
 
     # Handle the case where no subcommand is provided
     if args.command is None:
-        print("No subcommand provided. Running default behavior.")
+        if args.verbose:
+          print("Running default behavior. Returning current SemVer.")
+
         # Add default behavior here
+        print(Semver.get_current_semver())
+
         sys.exit(0)
 
     if args.command == 'bump':
