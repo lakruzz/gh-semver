@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-
-pushd "$(dirname "$0")" > /dev/null
-
 # Attempt to get the virtual environment path
 pipenv --venv > /dev/null 2>&1
 
@@ -12,6 +9,4 @@ if [ $? -ne 0 ]; then
     pipenv sync > /dev/null 2>&1
 fi
 
-pipenv run python ./gh-semver.py "$@"
-
-popd > /dev/null
+pipenv run python $(dirname "$0")/gh-semver.py "$@"

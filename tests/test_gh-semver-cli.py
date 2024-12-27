@@ -1,23 +1,53 @@
 import subprocess
 import unittest
 import pytest
+import os
 
 
 class TestGhSemverCLI(unittest.TestCase):
 
-    @pytest.mark.dev
-    @pytest.mark.smoke
+
+    @classmethod
+    def setup_class(cls):
+        # Class-level setup code
+        print("Setting up TestGhSemverCLI class")
+        cls.cli_path = os.path.abspath('gh-semver.py')
+        cls.test_dir = os.path.abspath('./testbed/TestGhSemverCLI')
+        # Check if teardown ran succesfully and rerun it if it didn't
+        if os.path.exists(cls.test_dir):
+            if not cls.cleanup_testbed():
+                raise Exception("Failed to remove existing test directory")
+        subprocess.check_call('mkdir -p {}'.format(cls.test_dir), shell=True)
+        subprocess.check_call('git init', cwd=cls.test_dir, shell=True)
+
+    @classmethod
+    def teardown_class(cls):
+        # Class-level teardown code
+        print("Tearing down TestGhSemverCLI class")
+        cls.cleanup_testbed()
+
+    
+    @classmethod
+    def cleanup_testbed(cls):
+        print("Cleaning up the testbed")
+        try:
+            subprocess.check_call('rm -rf {}'.format(cls.test_dir), shell=True)
+            return True
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to remove test directory: {e}")
+            return False        
+
     def run_cli(self, *args):
         result = subprocess.run(
-            ['python3', 'gh-semver.py'] + list(args), capture_output=True, text=True)
+            ['python3', self.cli_path] + list(args), cwd=self.test_dir, capture_output=True, text=True)
         return result
 
     @pytest.mark.dev
     @pytest.mark.smoke
     def test_no_subcommand(self):
-        result = self.run_cli()
+        result = self.run_cli('--verbose')
         self.assertIn(
-            "No subcommand provided. Running default behavior.", result.stdout)
+            "Running default behavior. Returning current SemVer.", result.stdout)
 
     @pytest.mark.dev
     @pytest.mark.smoke

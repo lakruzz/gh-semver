@@ -8,6 +8,7 @@ pytest = "*"
 
 [dev-packages]
 pytest = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "*"
