@@ -30,6 +30,14 @@ if __name__ == "__main__":
     bump_group.add_argument('--minor', action='store_true', help='Bump the minor version')
     bump_group.add_argument('--patch', action='store_true', help='Bump the patch version')
 
+    # Add the --message option to take a string parameter
+    bump_parser.add_argument('-m', '--message', type=str, help='Additional message to add to the tag')
+
+    # Add the --run and --no-run options as mutually exclusive
+    run_group = bump_parser.add_mutually_exclusive_group(required=False)
+    run_group.add_argument('--run', dest='run', action='store_true', help='Run the bump (default)')
+    run_group.add_argument('--no-run', dest='run', action='store_false', help='Do not run the bump')
+    bump_parser.set_defaults(run=True)
 
     init_parser = subparsers.add_parser('init', help='Initialize the repository')
     init_parser.add_argument('--prefix', help='Prefix for the version')
@@ -49,18 +57,24 @@ if __name__ == "__main__":
 
     if args.command == 'bump':
         if args.verbose:
-            print("Running in " + args.command + " subcommand mode.")        
+            print("Running in " + args.command + " subcommand mode.")
+        semver = Semver()
+    
+        
         if args.major:
             if args.verbose:
                 print("Bumping major version.")
-            semver = Semver()
-            
+
         elif args.minor:
             if args.verbose:
                 print("Bumping minor version.")
+
         elif args.patch:
             if args.verbose:
                 print("Bumping patch version.")
+            
+
+            print(semver.commands['patch'])
         sys.exit(0)
     
     if args.command == 'init':
