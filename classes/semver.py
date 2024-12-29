@@ -29,7 +29,7 @@ class Semver:
 
         try:
             initial_offset = os.popen(
-                'git config get --file .semver.config semver.initial').read().strip()
+                'git config get --file $(git rev-parse --show-toplevel)/.semver.config semver.initial').read().strip()
             if initial_offset:
                 return prefix+initial_offset
         except Exception:
@@ -52,7 +52,7 @@ class Semver:
 
         try:
             initial_offset = os.popen(
-                'git config get --file .semver.config semver.prefix').read().strip()
+                'git config get --file $(git rev-parse --show-toplevel)/.semver.config semver.prefix').read().strip()
             if initial_offset:
                 return initial_offset
         except Exception:

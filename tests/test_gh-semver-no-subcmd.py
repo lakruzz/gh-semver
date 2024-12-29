@@ -12,7 +12,6 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         print("Setting up TestGhSemverNoSubcommand testbed")
         cls.cli_path = os.path.abspath('gh-semver.py')
         cls.test_dir = os.path.abspath('./testbed/TestGhSemverNoSubcommand')
-        # Check if teardown ran succesfully and rerun it if it didn't
         cls.__cleanup_testbed()
         cls.__create_testbed()
 
@@ -21,7 +20,7 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
     def teardown_class(cls):
         # Class-level teardown code
         print("Tearing down TestGhSemverCLI class")
-        cls.__cleanup_testbed()
+        #cls.__cleanup_testbed()
 
     @classmethod
     def __cleanup_testbed(cls):
