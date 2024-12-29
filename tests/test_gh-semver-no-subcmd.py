@@ -15,12 +15,12 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         Testbed.cleanup_testbed(cls.test_dir)
         Testbed.create_testbed(cls.test_dir)
 
-
     @classmethod
     def teardown_class(cls):
         # Class-level teardown code
         print("Tearing down TestGhSemverCLI class")
         #cls.__cleanup_testbed()
+
 
     @pytest.mark.dev
     @pytest.mark.smoke
