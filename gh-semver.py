@@ -34,7 +34,7 @@ if __name__ == "__main__":
     init_parser.add_argument('--offset', help='Offset for the version')
 
     args = parser.parse_args()
-
+        
     # Handle the case where no subcommand is provided
     if args.command is None:
         if args.verbose:
@@ -46,13 +46,19 @@ if __name__ == "__main__":
         sys.exit(0)
 
     if args.command == 'bump':
-        print("Running in " + args.command + " subcommand mode.")
+        if args.verbose:
+            print("Running in " + args.command + " subcommand mode.")
+        
         if args.major:
-            print("Bumping major version.")
+            if args.verbose:
+                print("Bumping major version.")
+            semver = Semver()
         elif args.minor:
-            print("Bumping minor version.")
+            if args.verbose:
+                print("Bumping minor version.")
         elif args.patch:
-            print("Bumping patch version.")
+            if args.verbose:
+                print("Bumping patch version.")
         sys.exit(0)
     
     if args.command == 'init':

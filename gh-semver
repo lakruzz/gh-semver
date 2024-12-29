@@ -3,6 +3,8 @@
 # Attempt to get the virtual environment path
 pipenv --venv > /dev/null 2>&1
 
+export PIPENV_VERBOSITY=-1
+
 # If pipenv --venv failed, it means no virtual environment exists
 if [ $? -ne 0 ]; then
     echo "First time around - Setting up pipenv environment..."

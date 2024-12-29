@@ -18,12 +18,10 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
     @classmethod
     def teardown_class(cls):
         # Class-level teardown code
-        print("Tearing down TestGhSemverCLI class")
+        print("Tearing down TestGhSemverNoSubcommand class")
         #cls.__cleanup_testbed()
 
-
     @pytest.mark.dev
-    @pytest.mark.smoke
     def test_no_subcommand_initial(self):
         """This test checks if the script returns the default initial version when no config files are setup - it requires a clean testbed"""
         Testbed.cleanup_testbed(self.test_dir)
@@ -33,7 +31,6 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
             "v0.0.0", result.stdout)
         
     @pytest.mark.dev
-    @pytest.mark.smoke
     def test_no_subcommand_from_config(self):
         """This test checks if the config files are read correctly, if they exist - it requires a clean testbed"""
         Testbed.cleanup_testbed(self.test_dir)
@@ -59,7 +56,6 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
             "version2.0.0", result.stdout)
         
     @pytest.mark.dev
-    @pytest.mark.smoke
     def test_no_subcommand_from_list(self):
         """This test checks if the script returns the latest version from a list of tags - it requires a list of tags in the repo"""
 
