@@ -50,19 +50,19 @@ class TestGhSemverCLI(unittest.TestCase):
 
     @pytest.mark.dev
     def test_bump_major(self):
-        result = self.run_cli('bump', '--major')
+        result = self.run_cli('bump', '--major', '--verbose')
         self.assertIn("Running in bump subcommand mode.", result.stdout)
         self.assertIn("Bumping major version.", result.stdout)
 
     @pytest.mark.dev
     def test_bump_minor(self):
-        result = self.run_cli('bump', '--minor')
+        result = self.run_cli('bump', '--minor', '--verbose')
         self.assertIn("Running in bump subcommand mode.", result.stdout)
         self.assertIn("Bumping minor version.", result.stdout)
 
     @pytest.mark.dev
     def test_bump_patch(self):
-        result = self.run_cli('bump', '--patch')
+        result = self.run_cli('bump', '--patch', '--verbose')
         self.assertIn("Running in bump subcommand mode.", result.stdout)
         self.assertIn("Bumping patch version.", result.stdout)
 

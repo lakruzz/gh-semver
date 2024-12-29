@@ -13,6 +13,7 @@ class Semver:
     prefix = "v"     # Default prefix
     initial = "0.0.0"  # Default offset
 
+    @staticmethod
     def __get_initial_offset():
         # If `git config --get semver.initial` returns a value, return it as the offset else
         # try `gitconfig --get --file .semver.config semver.initial` and if it returns a value then use that
@@ -38,6 +39,7 @@ class Semver:
         return prefix+Semver.initial
     
 
+    @staticmethod
     def __get_prefix():
        # If `git config --get semver.prefix` returns a value, return it as the prefix else
        # try `gitconfig --get --file .semver.config semver.prefix` and if it returns a value then use that
@@ -59,6 +61,13 @@ class Semver:
             pass
 
         return Semver.prefix
+    
+
+    
+    def __init__(self):
+        self.prefix = Semver.__get_prefix()
+        self.initial = Semver.__get_initial_offset()
+        self.current_semver = Semver.get_current_semver()
 
     @staticmethod
     def get_current_semver():

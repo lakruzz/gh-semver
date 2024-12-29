@@ -13,21 +13,23 @@ from semver import Semver
 
 if __name__ == "__main__":
 
-    # Define command-line arguments
-    parser = argparse.ArgumentParser()
+    # Define the parent parser with the --verbose argument
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
 
-    # Add a global --verbose switch
-    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
+    # Define command-line arguments
+    parser = argparse.ArgumentParser(parents=[parent_parser])   
 
     # create two sub commands  - bump and init. Bump should take one of three required withchs - --major, --minor and --patch
     # init should take two optional switches -  --prefix and --offset
     subparsers = parser.add_subparsers(dest='command')
 
-    bump_parser = subparsers.add_parser('bump', help='Bump the version')
+    bump_parser = subparsers.add_parser('bump', parents=[parent_parser], help='Bump the version')
     bump_group = bump_parser.add_mutually_exclusive_group(required=True)
     bump_group.add_argument('--major', action='store_true', help='Bump the major version')
     bump_group.add_argument('--minor', action='store_true', help='Bump the minor version')
     bump_group.add_argument('--patch', action='store_true', help='Bump the patch version')
+
 
     init_parser = subparsers.add_parser('init', help='Initialize the repository')
     init_parser.add_argument('--prefix', help='Prefix for the version')
@@ -47,12 +49,12 @@ if __name__ == "__main__":
 
     if args.command == 'bump':
         if args.verbose:
-            print("Running in " + args.command + " subcommand mode.")
-        
+            print("Running in " + args.command + " subcommand mode.")        
         if args.major:
             if args.verbose:
                 print("Bumping major version.")
             semver = Semver()
+            
         elif args.minor:
             if args.verbose:
                 print("Bumping minor version.")
