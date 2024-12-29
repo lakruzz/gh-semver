@@ -22,14 +22,6 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         print("Tearing down TestGhSemverCLI class")
         #cls.__cleanup_testbed()
 
-
-    def run_cli(self, *args, cwd=None):
-        if cwd is None:
-            cwd = self.test_dir
-        result = subprocess.run(
-            ['python3', self.cli_path] + list(args), cwd=cwd, capture_output=True, text=True)
-        return result
-
     @pytest.mark.dev
     @pytest.mark.smoke
     def test_no_subcommand_initial(self):
@@ -70,25 +62,35 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
     @pytest.mark.smoke
     def test_no_subcommand_from_list(self):
         """This test checks if the script returns the latest version from a list of tags - it requires a list of tags in the repo"""
+
+        # Create a tag that qualifies as a semantic version, make it different from any default or config values
         subprocess.check_call('echo "testfile">testfile.txt', cwd=self.test_dir, shell=True)
         subprocess.check_call('git add -A', cwd=self.test_dir, shell=True)
         subprocess.check_call('git commit -m "added testfile"', cwd=self.test_dir, shell=True)
         subprocess.check_call('git tag -a -m zerozeroone v0.0.1', cwd=self.test_dir, shell=True)
+
+        # Check if it returns the correct version
         result = Testbed.run_cli(self.cli_path, cwd=self.test_dir) 
         self.assertIn("v0.0.1", result.stdout)
 
+        # Create a tag, still different from any default or config values and with a higher version number
         subprocess.check_call('git tag -a -m onetwoone ver1.2.1', cwd=self.test_dir, shell=True)
         result = Testbed.run_cli(self.cli_path, cwd=self.test_dir) 
         self.assertIn("ver1.2.1", result.stdout)
 
+        # Create a tag, still different from any default or config values and with a lower version number than the previous one
+        # This should still pick the highest version number
         subprocess.check_call('git tag -a -m oneoneone version1.1.1', cwd=self.test_dir, shell=True)
         result = Testbed.run_cli(self.cli_path, cwd=self.test_dir) 
         self.assertIn("ver1.2.1", result.stdout)
 
+        # Create a tag with a freetext suffix, with a higher version number than the previous one
+        # The freetest should be allowed
         subprocess.check_call('git tag -a -m twooneone version2.1.1-freetext', cwd=self.test_dir, shell=True)
         result = Testbed.run_cli(self.cli_path, cwd=self.test_dir) 
         self.assertIn("version2.1.1-freetext", result.stdout)
 
+        # Create a tag with a higher, but invalid version number
         subprocess.check_call('git tag -a -m nonvalid version3.11-freetext', cwd=self.test_dir, shell=True)
         result = Testbed.run_cli(self.cli_path, cwd=self.test_dir) 
         self.assertIn("version2.1.1-freetext", result.stdout)
