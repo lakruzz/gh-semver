@@ -39,9 +39,11 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         subprocess.check_call('git init', cwd=cls.test_dir, shell=True)
 
 
-    def run_cli(self, *args):
+    def run_cli(self, *args, cwd=None):
+        if cwd is None:
+            cwd = self.test_dir
         result = subprocess.run(
-            ['python3', self.cli_path] + list(args), cwd=self.test_dir, capture_output=True, text=True)
+            ['python3', self.cli_path] + list(args), cwd=cwd, capture_output=True, text=True)
         return result
 
     @pytest.mark.dev
@@ -65,13 +67,21 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         result = self.run_cli()    
         self.assertIn(
             "ver1.0.0", result.stdout)
+        
+        # Even if cwd is not the root of the git repo, the script should still read the .semver.config file
+        subprocess.check_call('mkdir not-root', cwd=self.test_dir, shell=True)
+        subprocess.check_call('cd not-root', cwd=self.test_dir, shell=True)
+        result = self.run_cli(cwd=self.test_dir+"/not-root")    
+        self.assertIn(
+            "ver1.0.0", result.stdout)
+       
         # Set the initial and prefix values in the git config, they should override the values in the .semver.config file
         subprocess.check_call('git config set --local semver.initial 2.0.0', cwd=self.test_dir, shell=True)
         subprocess.check_call('git config set --local semver.prefix version', cwd=self.test_dir, shell=True)
         result = self.run_cli()    
         self.assertIn(
             "version2.0.0", result.stdout)
-
+        
     @pytest.mark.dev
     @pytest.mark.smoke
     def test_no_subcommand_from_list(self):
