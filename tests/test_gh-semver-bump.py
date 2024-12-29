@@ -2,6 +2,7 @@ import subprocess
 import unittest
 import pytest
 import os
+import re
 from .testbed import Testbed
 
 class TestGhSemverBump(unittest.TestCase):
@@ -46,9 +47,9 @@ class TestGhSemverBump(unittest.TestCase):
             "usage: gh-semver.py bump", result.stderr)
         
     @pytest.mark.dev
-    def test_bump_patch(self):
+    def test_bump_patch_cmd(self):
         """This test checks the bump subcommand used without any of the required switches"""
-        result = Testbed.run_cli(self.cli_path, 'bump', '--patch', cwd=self.test_dir)
-        self.assertIn(
-            "git tag -a -m", result.stderr)
+        result = Testbed.run_cli(self.cli_path, 'bump', '--patch', '--no-run', cwd=self.test_dir)
+        assert re.search(r"git tag -a -m \"Bumped patch from version  '.*'\" .*", result.stdout)
+
         
