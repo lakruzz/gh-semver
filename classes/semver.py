@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import re
 
@@ -10,8 +11,21 @@ sys.path.append(class_path)
 
 
 class Semver:
-    prefix = "v"     # Default prefix
+    # Class variables
+    config_file = ".semver.config"    
+    prefix = ''      # Default prefix
     initial = "0.0.0"  # Default offset
+    suffix = ''      # Default suffix
+    message = ''     # Default message
+    
+
+    # Static methods
+    @staticmethod
+    def get_current_semver():
+        """Return the current semver tag"""
+        semver=Semver()
+        return semver.current_tag
+    
 
     @staticmethod
     def __get_initial_offset():
@@ -38,7 +52,6 @@ class Semver:
 
         return Semver.initial
     
-
     @staticmethod
     def __get_prefix():
        # If `git config --get semver.prefix` returns a value, return it as the prefix else
@@ -54,30 +67,14 @@ class Semver:
 
         try:
             initial_offset = os.popen(
-                'git config get --file $(git rev-parse --show-toplevel)/.semver.config semver.prefix').read().strip()
+                'git config get --file $(git rev-parse --show-toplevel)/.semver.config semver.prefix'
+                ).read().strip()
             if initial_offset:
                 return initial_offset
         except Exception:
             pass
 
         return Semver.prefix
-    
-    def __init__(self, message=None):
-        self.prefix = Semver.__get_prefix()
-        self.initial = Semver.__get_initial_offset()
-        self.message = message
-        self.current_semver, self.current_tag = Semver.__get_current_semver_tuple()
-        if not self.current_semver:
-            try:
-                self.current_semver = tuple(map(int, self.initial.split('.')))
-            except Exception as e:
-                print(f"Failed to parse initial version, doesn't look like a three-level integer: {e}")
-            self.current_tag = self.prefix + self.initial
-        self.commands = {}
-        self.commands['major'] = 'git tag -a -m "Bumped major from version  \'' + self.current_tag + '\'" ' + self.prefix + str(self.current_semver[0] + 1) + '.0.0'
-        self.commands['minor'] = 'git tag -a -m "Bumped minor from version  \'' + self.current_tag + '\'" ' + self.prefix + str(self.current_semver[0]) + '.' + str(self.current_semver[1] + 1) + '.0'
-        self.commands['patch'] = 'git tag -a -m "Bumped patch from version  \'' + self.current_tag + '\'" ' + self.prefix + str(self.current_semver[0]) + '.' + str(self.current_semver[1]) + '.' + str(self.current_semver[2] + 1)
-
 
     @staticmethod
     def __get_current_semver_tuple():    
@@ -95,9 +92,114 @@ class Semver:
             return sorted_semver_tags[-1], semver_tags[sorted_semver_tags[-1]]
         else:
             return None, None
-    
+        
+    # Instance methods
+    def __init__(self):
+        config = self.get_config()
+        self.prefix = config.get('prefix', self.prefix)
+        self.initial = config.get('initial', self.initial)
+        self.suffix = config.get('suffix', self.suffix)
+        self.current_semver, self.current_tag = Semver.__get_current_semver_tuple()
+        if not self.current_semver:
+            try:
+                self.current_semver = tuple(map(int, self.initial.split('.')))
+            except Exception as e:
+                print(f"Failed to parse initial version, doesn't look like a three-level integer: {e}")
+            self.current_tag = self.prefix + self.initial + self.suffix
 
-    @staticmethod
-    def get_current_semver():
-        semver=Semver()
-        return semver.current_tag
+        # Initialize next potential versions as strings
+        self.next ={}
+        # Bump major, reset minor and patch
+        self.next['major'] = f"{self.current_semver[0] + 1}.0.0"
+        # Leave major, bump minor, reset patch
+        self.next['minor'] = f"{self.current_semver[0]}.{self.current_semver[1] + 1}.0"
+        # Leave major and minor, bump patch
+        self.next['patch'] = f"{self.current_semver[0]}.{self.current_semver[1]}.{self.current_semver[2] + 1}"
+
+    def get_config(self):
+        """Read the .semver.config file and return the configuration"""
+        config_map = {}
+        try:
+            config = os.popen(
+                'git config list --file $(git rev-parse --show-toplevel)/.semver.config 2>/dev/null').read().strip()
+        except Exception:
+            pass
+        try:
+            for line in config.split('\n'):
+                key, value = line.split('=')
+                if key == 'semver.prefix':
+                    config_map['prefix'] = value
+                elif key == 'semver.initial':
+                    config_map['initial'] = value
+                elif key == 'semver.suffix':
+                    config_map['suffix'] = value
+        except Exception:
+            pass
+        return config_map
+    
+    def set_config(self, prefix=None, offset=None, suffix=None):
+        """Set the configuration in the .semver.config file"""
+
+        updated = False
+
+        if prefix:
+            try:
+                subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.prefix {prefix}', shell=True)
+            except subprocess.CalledProcessError as e:
+                print(f"Failed to set prefix: {e}")
+                sys.exit(1)
+            updated = True
+            self.prefix = prefix
+            print (f"semver.prefix = {prefix}")
+        if offset:
+            try:
+                subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.initial {offset}', shell=True)
+            except subprocess.CalledProcessError as e:
+                print(f"Failed to set offset: {e}")
+            updated = True
+            self.initial = offset
+            print (f"semver.offset = {offset}")
+        if suffix:
+            try:
+                subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.suffix {suffix}', shell=True)
+            except subprocess.CalledProcessError as e:  
+                print(f"Failed to set suffix: {e}")
+            updated = True
+            self.suffix = suffix
+            print (f"semver.suffix = {suffix}")
+        
+        if not updated:
+            current_config = self.get_config()
+            print("Current configuration:")
+            if current_config:
+                for key, value in current_config.items():
+                    print(f"  semver.{key} = {value}") 
+            else:
+                print("  No configuration defined")       
+
+  
+    def bump(self, level=str, message=None, suffix=None):
+        was_semver, was_tag = self.current_semver, self.current_tag
+        try:
+            cmd = self.get_git_tag_cmd(level, message, suffix)
+            subprocess.check_call(cmd, shell=True)
+        except Exception as e:
+            print(f"Failed to run command: {e}")
+            sys.exit(1)
+        self.current_semver, self.current_tag = Semver.__get_current_semver_tuple()
+        return self.current_tag
+
+    def get_git_tag_cmd(self, level=str, message=None, suffix=None):
+        if message:
+            message = f"\n{message}"
+        else:
+            message = ""
+
+        if suffix:
+            suffix = f"-{suffix}"
+        else:    
+            suffix = ""
+        
+        next_tag = f"{self.prefix}{self.next[level]}{suffix}"
+
+        return f"git tag -a -m \"Bumped {level} from version '{self.current_tag}' to '{next_tag}'{message}\" {next_tag}"
