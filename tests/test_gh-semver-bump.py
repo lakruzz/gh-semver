@@ -18,7 +18,7 @@ class TestGhSemverBump(unittest.TestCase):
 
         # Create a tag that qualifies as a semantic version, make it different from any default or config values
         subprocess.check_call('echo "testfile">testfile.txt', cwd=cls.test_dir, shell=True)
-        subprocess.check_call('git add -A', cwd=cls.test_dir, shell=True)
+        subprocess.check_call('git add testfile.txt', cwd=cls.test_dir, shell=True)
         subprocess.check_call('git commit -m "added testfile"', cwd=cls.test_dir, shell=True)
         subprocess.check_call('git tag -a -m zerozeroone v0.0.1', cwd=cls.test_dir, shell=True)
         subprocess.check_call('git tag -a -m onetwoone ver1.2.1', cwd=cls.test_dir, shell=True)

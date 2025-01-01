@@ -17,6 +17,7 @@ class Testbed:
     def create_testbed(test_dir):
         subprocess.check_call('mkdir -p {}'.format(test_dir), shell=True)
         subprocess.check_call('git init', cwd=test_dir, shell=True)
+        subprocess.check_call('git checkout -b testbed', cwd=test_dir, shell=True)
 
     @staticmethod
     def run_cli(cli_path, *args, cwd):
