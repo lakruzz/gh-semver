@@ -5,14 +5,14 @@ import os
 import re
 from .testbed import Testbed
 
-class TestGhSemverInit(unittest.TestCase):
+class TestGhSemverConfig(unittest.TestCase):
 
     @classmethod
     def setup_class(cls):
         # Class-level setup code
-        print("Setting up TestGhSemverInit testbed")
+        print("Setting up TestGhSemverConfig testbed")
         cls.cli_path = os.path.abspath('gh-semver.py')
-        cls.test_dir = os.path.abspath('./testbed/TestGhSemverInit')
+        cls.test_dir = os.path.abspath('./testbed/TestGhSemverConfig')
         Testbed.cleanup_testbed(cls.test_dir)
         Testbed.create_testbed(cls.test_dir)
 
@@ -40,8 +40,8 @@ class TestGhSemverInit(unittest.TestCase):
             "usage: gh-semver.py bump", result.stderr)
 
     @pytest.mark.dev
-    def test_init_prefix_switch(self):
+    def test_config_prefix_switch(self):
         """This test checks the bump subcommand used without any of the required switches"""
-        result = Testbed.run_cli(self.cli_path, 'init', '--prefix', '1.0.0', cwd=self.test_dir)
+        result = Testbed.run_cli(self.cli_path, 'config', '--prefix',  '1.0.0', cwd=self.test_dir)
         self.assertIn(
             "usage: gh-semver.py bump", result.stderr)

@@ -140,21 +140,36 @@ class Semver:
     def set_config(self, prefix=None, offset=None, suffix=None):
         """Set the configuration in the .semver.config file"""
 
+        updated = False
+
         if prefix:
             try:
                 subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.prefix {prefix}', shell=True)
             except subprocess.CalledProcessError as e:
                 print(f"Failed to set prefix: {e}")
                 sys.exit(1)
+            updated = True
             self.prefix = prefix
             print (f"semver.prefix = {prefix}")
         if offset:
+            try:
+                subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.initial {offset}', shell=True)
+            except subprocess.CalledProcessError as e:
+                print(f"Failed to set offset: {e}")
+            updated = True
             self.initial = offset
-            subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.initial {offset}', shell=True)     
+            print (f"semver.offset = {offset}")
         if suffix:
+            try:
+                subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.suffix {suffix}', shell=True)
+            except subprocess.CalledProcessError as e:  
+                print(f"Failed to set suffix: {e}")
+            updated = True
             self.suffix = suffix
-            subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.suffix {suffix}', shell=True)
-            
+            print (f"semver.suffix = {suffix}")
+        
+        if not updated:
+            print("Nothing to do - no configuration is changed")
         
 
   

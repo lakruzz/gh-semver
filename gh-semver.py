@@ -31,8 +31,6 @@ if __name__ == "__main__":
     # Define command-line arguments
     parser = argparse.ArgumentParser(parents=[parent_parser])   
 
-    # create two sub commands  - bump and init. Bump should take one of three required withchs - --major, --minor and --patch
-    # init should take two optional switches -  --prefix and --offset
     subparsers = parser.add_subparsers(dest='command')
 
     bump_parser = subparsers.add_parser('bump', parents=[parent_parser], help='Bump the version')
@@ -44,17 +42,16 @@ if __name__ == "__main__":
     bump_parser.add_argument('--message','-m', type=str, help='Additional message to add to the tag')
     bump_parser.add_argument('--suffix',type=validate_suffix, help='Suffix to add to the version allowd characters are lowercase letters. numbers, dashes and underscores')
 
-
     # Add the --run and --no-run options as mutually exclusive
     run_group = bump_parser.add_mutually_exclusive_group(required=False)
     run_group.add_argument('--run', dest='run', action='store_true', help='Run the bump (default)')
     run_group.add_argument('--no-run', dest='run', action='store_false', help='Do not run the bump')
     bump_parser.set_defaults(run=True)
 
-    init_parser = subparsers.add_parser('init', help='Initialize the repository')
-    init_parser.add_argument('--prefix', type=validate_prefix, help='Prefix for the version. must be a three-level integer separtaed by dots (e.g., 1.0.0)', default=None)
-    init_parser.add_argument('--suffix', type=str, help='Suffix for the version', default=None)
-    init_parser.add_argument('--offset', type=str, help='Offset for the version', default=None)
+    config_parser = subparsers.add_parser('config', parents=[parent_parser], help='Creates or updates the .semver.config file')
+    config_parser.add_argument('--prefix', type=validate_prefix, help='Prefix for the version. must be a three-level integer separtaed by dots (e.g., 1.0.0)', default=None)
+    config_parser.add_argument('--suffix', type=str, help='Suffix for the version', default=None)
+    config_parser.add_argument('--offset', type=str, help='Offset for the version', default=None)
 
     args = parser.parse_args()
         
@@ -75,7 +72,7 @@ if __name__ == "__main__":
             print(result)
         sys.exit(0)
     
-    if args.command == 'init':
+    if args.command == 'config':
         semver = Semver()
         semver.set_config(prefix=args.prefix, offset=args.offset, suffix=args.suffix)
         sys.exit(0)
