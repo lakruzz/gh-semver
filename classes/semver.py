@@ -105,7 +105,7 @@ class Semver:
                 self.current_semver = tuple(map(int, self.initial.split('.')))
             except Exception as e:
                 print(f"Failed to parse initial version, doesn't look like a three-level integer: {e}")
-            self.current_tag = self.prefix + self.initial
+            self.current_tag = self.prefix + self.initial + self.suffix
 
         # Initialize next potential versions as strings
         self.next ={}

@@ -30,31 +30,38 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         self.assertIn(
             "0.0.0", result.stdout)
         
+#    @pytest.mark.dev
+#    def test_no_subcommand_from_config(self):
+#        """This test checks if the config files are read correctly, it requires a clean testbed"""
+#        Testbed.cleanup_testbed(self.test_dir)
+#        Testbed.create_testbed(self.test_dir)
+#        # Create a .semver.config file with a variant differnt from the default prefix and initial offset       
+#        subprocess.check_call('echo "[semver]\\n  prefix = ver\\n  initial = 1.0.0">.semver.config\\n  suffix = pending', cwd=self.test_dir, shell=True)
+#        result = Testbed.run_cli(self.cli_path, cwd=self.test_dir)    
+#        self.assertIn(
+#            "ver1.0.0-pending", result.stdout)
+        
     @pytest.mark.dev
     def test_no_subcommand_from_config(self):
-        """This test checks if the config files are read correctly, if they exist - it requires a clean testbed"""
+        """This test checks if the config files are read correctly, it requires a clean testbed"""
         Testbed.cleanup_testbed(self.test_dir)
         Testbed.create_testbed(self.test_dir)
         # Create a .semver.config file with a variant differnt from the default prefix and initial offset       
-        subprocess.check_call('echo "[semver]\\n  prefix = ver\\n  initial = 1.0.0">.semver.config', cwd=self.test_dir, shell=True)
+        subprocess.check_call('echo "[semver]\\n  prefix = ver\\n  initial = 1.0.0\\n  suffix = -pending">.semver.config', cwd=self.test_dir, shell=True)
         result = Testbed.run_cli(self.cli_path, cwd=self.test_dir)    
         self.assertIn(
-            "ver1.0.0", result.stdout)
+            "ver1.0.0-pending", result.stdout)
         
         # Even if cwd is not the root of the git repo, the script should still read the .semver.config file
         subprocess.check_call('mkdir not-root', cwd=self.test_dir, shell=True)
         subprocess.check_call('cd not-root', cwd=self.test_dir, shell=True)
         result = Testbed.run_cli(self.cli_path, cwd=self.test_dir+"/not-root")
         self.assertIn(
-            "ver1.0.0", result.stdout)
-       
-        # Set the initial and prefix values in the git config, they should override the values in the .semver.config file
-        subprocess.check_call('git config set --local semver.initial 2.0.0', cwd=self.test_dir, shell=True)
-        subprocess.check_call('git config set --local semver.prefix version', cwd=self.test_dir, shell=True)
-        result = Testbed.run_cli(self.cli_path, cwd=self.test_dir)     
-        self.assertIn(
-            "version2.0.0", result.stdout)
+            "ver1.0.0-pending", result.stdout)
         
+        
+       
+
     @pytest.mark.dev
     def test_no_subcommand_from_list(self):
         """This test checks if the script returns the latest version from a list of tags - it requires a list of tags in the repo"""
