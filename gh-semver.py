@@ -60,12 +60,8 @@ if __name__ == "__main__":
         
     # Handle the case where no subcommand is provided
     if args.command is None:
-        if args.verbose:
-          print("Running default behavior. Returning current SemVer.")
-
-        # Add default behavior here
-        print(Semver.get_current_semver())
-
+        semver = Semver()
+        print(semver.get_current_semver())
         sys.exit(0)
 
     if args.command == 'bump':

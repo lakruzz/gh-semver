@@ -13,10 +13,10 @@ sys.path.append(class_path)
 class Semver:
     # Class variables
     config_file = ".semver.config"    
-    prefix = None      # Default prefix
+    prefix = ''      # Default prefix
     initial = "0.0.0"  # Default offset
-    suffix = None      # Default suffix
-    message = None     # Default message
+    suffix = ''      # Default suffix
+    message = ''     # Default message
     
 
     # Static methods
@@ -96,10 +96,9 @@ class Semver:
     # Instance methods
     def __init__(self):
         config = self.get_config()
-        if config:
-            self.prefix = config.get('prefix', None)
-            self.initial = config.get('initial', None)
-            self.suffix = config.get('suffix', None)
+        self.prefix = config.get('prefix', self.prefix)
+        self.initial = config.get('initial', self.initial)
+        self.suffix = config.get('suffix', self.suffix)
         self.current_semver, self.current_tag = Semver.__get_current_semver_tuple()
         if not self.current_semver:
             try:

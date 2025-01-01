@@ -28,7 +28,7 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         Testbed.create_testbed(self.test_dir)
         result = Testbed.run_cli(self.cli_path, cwd=self.test_dir)
         self.assertIn(
-            "v0.0.0", result.stdout)
+            "0.0.0", result.stdout)
         
     @pytest.mark.dev
     def test_no_subcommand_from_config(self):
