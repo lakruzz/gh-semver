@@ -5,14 +5,14 @@ import os
 import re
 from .testbed import Testbed
 
-class TestGhSemverBump(unittest.TestCase):
+class TestGhSemverInit(unittest.TestCase):
 
     @classmethod
     def setup_class(cls):
         # Class-level setup code
-        print("Setting up TestGhSemverBump testbed")
+        print("Setting up TestGhSemverInit testbed")
         cls.cli_path = os.path.abspath('gh-semver.py')
-        cls.test_dir = os.path.abspath('./testbed/TestGhSemverBump')
+        cls.test_dir = os.path.abspath('./testbed/TestGhSemverInit')
         Testbed.cleanup_testbed(cls.test_dir)
         Testbed.create_testbed(cls.test_dir)
 
@@ -33,34 +33,15 @@ class TestGhSemverBump(unittest.TestCase):
         #cls.__cleanup_testbed()
 
     @pytest.mark.dev
-    def test_bump_no_switch(self):
+    def test_init_no_switch(self):
         """This test checks the bump subcommand used without any of the required switches"""
-        result = Testbed.run_cli(self.cli_path, 'bump', cwd=self.test_dir)
+        result = Testbed.run_cli(self.cli_path, 'init', cwd=self.test_dir)
         self.assertIn(
             "usage: gh-semver.py bump", result.stderr)
 
     @pytest.mark.dev
-    def test_bump_wrong_switch(self):
+    def test_init_prefix_switch(self):
         """This test checks the bump subcommand used without any of the required switches"""
-        result = Testbed.run_cli(self.cli_path, 'bump', '--illegal', cwd=self.test_dir)
+        result = Testbed.run_cli(self.cli_path, 'init', '--prefix', '1.0.0', cwd=self.test_dir)
         self.assertIn(
             "usage: gh-semver.py bump", result.stderr)
-        
-    @pytest.mark.dev
-    def test_bump_patch_cmd(self):
-        """This test checks the bump subcommand used in --no-run mode"""
-        result = Testbed.run_cli(self.cli_path, 'bump', '--patch', '--no-run', cwd=self.test_dir)
-        assert re.search(r"git tag -a -m \"Bumped patch from version  '.*'\" .*", result.stdout)
-
-    @pytest.mark.dev
-    def test_bump_patch_cmd_msg(self):
-        """This test checks the bump subcommand used in --no-run mode"""
-        result = Testbed.run_cli(self.cli_path, 'bump', '--patch', '--no-run', '-m "Additional message"', cwd=self.test_dir)
-        assert re.search(r"git tag -a -m \"Bumped patch from version  '.*'\" .*", result.stdout)
-
-    @pytest.mark.dev
-    def test_bump_minor_cmd(self):
-        """This test checks the bump subcommand used in --no-run mode"""
-        result = Testbed.run_cli(self.cli_path, 'bump', '--minor', '--no-run', cwd=self.test_dir)
-        assert re.search(r"git tag -a -m \"Bumped minor from version  '.*'\" .*", result.stdout)
-        
