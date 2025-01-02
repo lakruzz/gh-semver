@@ -45,7 +45,7 @@ class TestGhSemverConfig(unittest.TestCase):
 
     @pytest.mark.dev
     def test_config_prefix_switch(self):
-        """Config subcommand used to write to the config files"""
+        """Config subcommand used to write the prefix to the config files"""
         # Will not require a clean testbed, this is a write operation
         result = Testbed.run_cli(self.cli_path, 'config', '--prefix',  'v', cwd=self.test_dir)
         self.assertIn( #print the new value
@@ -57,5 +57,33 @@ class TestGhSemverConfig(unittest.TestCase):
         assert(result.returncode > 0)
         self.assertIn(  #try to set it to a non-valid value
             "error: argument --prefix:", result.stderr)
-        
     
+    @pytest.mark.dev
+    def test_config_suffix_switch(self):
+        """Config subcommand used to write the suffix to the config files"""
+        # Will not require a clean testbed, this is a write operation
+        result = Testbed.run_cli(self.cli_path, 'config', '--suffix',  'pending', cwd=self.test_dir)
+        self.assertIn( #print the new value
+            "semver.suffix = pending", result.stdout)
+        result = Testbed.run_cli(self.cli_path, 'config', '--suffix',  'numb3r', cwd=self.test_dir)
+        self.assertIn(  #print the new value
+            "semver.suffix = numb3r", result.stdout)
+        result = Testbed.run_cli(self.cli_path, 'config', '--suffix',  'dot.no', cwd=self.test_dir)
+        assert(result.returncode > 0)
+        self.assertIn(  #try to set it to a non-valid value
+            "error: argument --suffix:", result.stderr)    
+        
+    @pytest.mark.dev
+    def test_config_offset_switch(self):
+        """Config subcommand used to write the offset to the config files"""
+        # Will not require a clean testbed, this is a write operation
+        result = Testbed.run_cli(self.cli_path, 'config', '--offset',  '0.0.0', cwd=self.test_dir)
+        self.assertIn( #print the new value
+            "semver.offset = 0.0.0", result.stdout)
+        result = Testbed.run_cli(self.cli_path, 'config', '--offset',  '12.4.345', cwd=self.test_dir)
+        self.assertIn(  #print the new value
+            "semver.offset = 12.4.345", result.stdout)
+        result = Testbed.run_cli(self.cli_path, 'config', '--offset',  'v0.0.0', cwd=self.test_dir)
+        assert(result.returncode > 0)
+        self.assertIn(  #try to set it to a non-valid value
+            "error: argument --offset:", result.stderr)        
