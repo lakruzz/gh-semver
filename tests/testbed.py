@@ -37,3 +37,14 @@ class Testbed:
         result = subprocess.run(
             ['python3', cli_path] + list(args), cwd=cwd, capture_output=True, text=True)
         return result
+    
+    @staticmethod
+    def git_dataset_1(test_dir):
+        subprocess.check_call('echo "testfile">testfile.txt', cwd=test_dir, shell=True)
+        subprocess.check_call('git add testfile.txt', cwd=test_dir, shell=True)
+        subprocess.check_call('git commit -m "added testfile"', cwd=test_dir, shell=True)
+        subprocess.check_call('git tag -a -m zerozeroone v0.0.1', cwd=test_dir, shell=True)
+        subprocess.check_call('git tag -a -m onetwoone ver1.2.1', cwd=test_dir, shell=True)
+        subprocess.check_call('git tag -a -m oneoneone version1.1.1', cwd=test_dir, shell=True)
+        subprocess.check_call('git tag -a -m twooneone version2.1.1-freetext', cwd=test_dir, shell=True)
+        subprocess.check_call('git tag -a -m nonvalid version3.11-freetext', cwd=test_dir, shell=True)

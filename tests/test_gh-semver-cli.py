@@ -2,51 +2,34 @@ import subprocess
 import unittest
 import pytest
 import os
+from .testbed import Testbed
 
 
 class TestGhSemverCLI(unittest.TestCase):
+    """Mostly focused on tesing the CLI, that is the subcommands, arguments and options"""
 
 
     @classmethod
     def setup_class(cls):
-        # Class-level setup code
-        print("Setting up TestGhSemverCLI class")
+        print(f"Setting up testbed for {cls.__name__} class")
+        cls.test_dir = os.path.abspath(f"./testbed/{cls.__name__}")
         cls.cli_path = os.path.abspath('gh-semver.py')
-        cls.test_dir = os.path.abspath('./testbed/TestGhSemverCLI')
-        # Check if teardown ran succesfully and rerun it if it didn't
-        if os.path.exists(cls.test_dir):
-            if not cls.cleanup_testbed():
-                raise Exception("Failed to remove existing test directory")
-        subprocess.check_call('mkdir -p {}'.format(cls.test_dir), shell=True)
-        subprocess.check_call('git init', cwd=cls.test_dir, shell=True)
+        Testbed.create_testbed(cls.test_dir)
+        Testbed.git_dataset_1(cls.test_dir)
 
     @classmethod
     def teardown_class(cls):
         # Class-level teardown code
-        print("Tearing down TestGhSemverCLI class")
-        cls.cleanup_testbed()
-
-    
-    @classmethod
-    def cleanup_testbed(cls):
-        print("Cleaning up the testbed")
-        try:
-            subprocess.check_call('rm -rf {}'.format(cls.test_dir), shell=True)
-            return True
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to remove test directory: {e}")
-            return False        
-
-    def run_cli(self, *args):
-        result = subprocess.run(
-            ['python3', self.cli_path] + list(args), cwd=self.test_dir, capture_output=True, text=True)
-        return result
+        print(f"Tearing down {cls.__name__} class testbed")
+        print(f"...not doing anything - testbed will be left for inspection and reset as part of the next test run")
 
     @pytest.mark.dev
     def test_no_subcommand(self):
-        result = self.run_cli('--verbose')
+        """Checks if the script accepts to run with no subcommands or parameters at all"""
+        Testbed.create_testbed(self.test_dir) # Get a clean testbed
+        result = Testbed.run_cli(self.cli_path, cwd=self.test_dir)
         self.assertIn(
-            "Running default behavior. Returning current SemVer.", result.stdout)
+            "0.0.0", result.stdout)
 
     @pytest.mark.dev
     def test_bump_major(self):
