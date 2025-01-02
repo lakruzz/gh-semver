@@ -34,17 +34,28 @@ class TestGhSemverConfig(unittest.TestCase):
 
     @pytest.mark.dev
     def test_init_no_switch_no_config(self):
-        """This test checks the config subcommand used without any of the switches (read config)
+        """Config subcommand used without any of the switches (read config)
         and without any config files"""
-        Testbed.cleanup_testbed(self.test_dir)
-        Testbed.create_testbed(self.test_dir)
-        result = Testbed.run_cli(self.cli_path, 'init', cwd=self.test_dir)
-        self.assertIn(
-            "usage: gh-semver.py bump", result.stdout)
+        Testbed.create_testbed(self.test_dir) # Get a clean testbed
+        result = Testbed.run_cli(self.cli_path, 'config', cwd=self.test_dir)
+        self.assertIn( # Read mode
+            "Current configuration:", result.stdout)
+        self.assertIn( # No configuration defined
+            "No configuration defined", result.stdout)
 
     @pytest.mark.dev
     def test_config_prefix_switch(self):
-        """This test checks the bump subcommand used without any of the required switches"""
-        result = Testbed.run_cli(self.cli_path, 'config', '--prefix',  '1.0.0', cwd=self.test_dir)
-        self.assertIn(
-            "semver.prefix = 1.0.0", result.stdout)
+        """Config subcommand used to write to the config files"""
+        # Will not require a clean testbed, this is a write operation
+        result = Testbed.run_cli(self.cli_path, 'config', '--prefix',  'v', cwd=self.test_dir)
+        self.assertIn( #print the new value
+            "semver.prefix = v", result.stdout)
+        result = Testbed.run_cli(self.cli_path, 'config', '--prefix',  'ver', cwd=self.test_dir)
+        self.assertIn(  #print the new value
+            "semver.prefix = ver", result.stdout)
+        result = Testbed.run_cli(self.cli_path, 'config', '--prefix',  'Numb3r', cwd=self.test_dir)
+        assert(result.returncode > 0)
+        self.assertIn(  #try to set it to a non-valid value
+            "error: argument --prefix:", result.stderr)
+        
+    
