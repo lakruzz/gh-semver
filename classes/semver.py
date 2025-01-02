@@ -169,8 +169,13 @@ class Semver:
             print (f"semver.suffix = {suffix}")
         
         if not updated:
-            print("Nothing to do - no configuration is changed")
-        
+            current_config = self.get_config()
+            print("Current configuration:")
+            if current_config:
+                for key, value in current_config.items():
+                    print(f"  semver.{key} = {value}") 
+            else:
+                print("  No configuration defined")       
 
   
     def bump(self, level=str, message=None, suffix=None):

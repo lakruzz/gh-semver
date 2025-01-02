@@ -33,15 +33,18 @@ class TestGhSemverConfig(unittest.TestCase):
         #cls.__cleanup_testbed()
 
     @pytest.mark.dev
-    def test_init_no_switch(self):
-        """This test checks the bump subcommand used without any of the required switches"""
+    def test_init_no_switch_no_config(self):
+        """This test checks the config subcommand used without any of the switches (read config)
+        and without any config files"""
+        Testbed.cleanup_testbed(self.test_dir)
+        Testbed.create_testbed(self.test_dir)
         result = Testbed.run_cli(self.cli_path, 'init', cwd=self.test_dir)
         self.assertIn(
-            "usage: gh-semver.py bump", result.stderr)
+            "usage: gh-semver.py bump", result.stdout)
 
     @pytest.mark.dev
     def test_config_prefix_switch(self):
         """This test checks the bump subcommand used without any of the required switches"""
         result = Testbed.run_cli(self.cli_path, 'config', '--prefix',  '1.0.0', cwd=self.test_dir)
         self.assertIn(
-            "usage: gh-semver.py bump", result.stderr)
+            "semver.prefix = 1.0.0", result.stdout)

@@ -13,13 +13,18 @@ from semver import Semver
 
 def validate_suffix(suffix):
     if not re.match("^[a-z0-9_-]*$", suffix):
-        raise argparse.ArgumentTypeError("Suffix: Allowd characters are lowercase letters. numbers, dashes and underscores")
+        raise argparse.ArgumentTypeError("Suffix: Allowd characters are lowercase letters, numbers, dashes and underscores")
     return suffix
 
-def validate_prefix(value):
-    if not re.match(r"^\d+\.\d+\.\d+$", value):
-        raise argparse.ArgumentTypeError("Prefix: Must be a three-level integer separated by dots (e.g. 1.0.0)")
-    return 
+def validate_prefix(prefix):
+    if not re.match("^[a-zA-Z]*$", prefix):
+        raise argparse.ArgumentTypeError("Prefix: Allowd characters are lowercase and uppercase letters.")
+    return prefix
+
+def validate_offset(offset):
+    if not re.match(r"^\d+\.\d+\.\d+$", offset):
+        raise argparse.ArgumentTypeError("Offset: Must be a three-level integer separated by dots (e.g. 1.0.0)")
+    return offset
 
 
 if __name__ == "__main__":
@@ -49,9 +54,10 @@ if __name__ == "__main__":
     bump_parser.set_defaults(run=True)
 
     config_parser = subparsers.add_parser('config', parents=[parent_parser], help='Creates or updates the .semver.config file')
-    config_parser.add_argument('--prefix', type=validate_prefix, help='Prefix for the version. must be a three-level integer separtaed by dots (e.g., 1.0.0)', default=None)
-    config_parser.add_argument('--suffix', type=str, help='Suffix for the version', default=None)
-    config_parser.add_argument('--offset', type=str, help='Offset for the version', default=None)
+    config_group = config_parser.add_argument_group('Configuration options')
+    config_group.add_argument('--prefix', type=validate_prefix, help='Prefix for the tag. Allowd characters are lowercase and uppercase letters', default=None)
+    config_group.add_argument('--suffix', type=validate_suffix, help='Suffix for the tag. Allowd characters are lowercase letters, numbers, dashes and underscores', default=None)
+    config_group.add_argument('--offset', type=validate_offset, help='Offset for the first tag. Must be a three-level integer separtaed by dots (e.g., 1.0.0)', default=None)
 
     args = parser.parse_args()
         
