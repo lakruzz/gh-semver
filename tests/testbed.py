@@ -10,8 +10,7 @@ class Testbed:
             try:
                 subprocess.check_call('rm -rf {}'.format(test_dir), shell=True)
             except subprocess.CalledProcessError as e:
-                print(f"Failed to remove test directory: {e}")
-                
+                print(f"Failed to remove test directory: {e}")            
         
     @staticmethod
     def create_testbed(test_dir):
@@ -35,7 +34,7 @@ class Testbed:
     @staticmethod
     def run_cli(cli_path, *args, cwd):
         result = subprocess.run(
-            ['python3', cli_path] + list(args), cwd=cwd, capture_output=True, text=True)
+            [cli_path] + list(args), cwd=cwd, capture_output=True, text=True)
         return result
     
     @staticmethod

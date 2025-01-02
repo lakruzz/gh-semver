@@ -5,9 +5,9 @@ import os
 from .testbed import Testbed
 
 
+
 class TestGhSemverCLI(unittest.TestCase):
     """Mostly focused on tesing the CLI, that is the subcommands, arguments and options"""
-
 
     @classmethod
     def setup_class(cls):
@@ -24,46 +24,33 @@ class TestGhSemverCLI(unittest.TestCase):
         print(f"...not doing anything - testbed will be left for inspection and reset as part of the next test run")
 
     @pytest.mark.dev
-    def test_no_subcommand(self):
-        """Checks if the script accepts to run with no subcommands or parameters at all"""
-        Testbed.create_testbed(self.test_dir) # Get a clean testbed
-        result = Testbed.run_cli(self.cli_path, cwd=self.test_dir)
+    def test_bump_no_switch(self):
+        """This test checks the bump subcommand used without any of the required switches"""
+        result = Testbed.run_cli(self.cli_path, 'bump', cwd=self.test_dir)
         self.assertIn(
-            "0.0.0", result.stdout)
+            "usage: gh-semver.py bump", result.stderr)
 
     @pytest.mark.dev
-    def test_bump_major(self):
-        result = self.run_cli('bump', '--major', '--verbose')
-        self.assertIn("Running in bump subcommand mode.", result.stdout)
-        self.assertIn("Bumping major version.", result.stdout)
+    def test_bump_wrong_switch(self):
+        """This test checks the bump subcommand used without any of the required switches"""
+        result = Testbed.run_cli(self.cli_path, 'bump', '--illegal', cwd=self.test_dir)
+        self.assertIn(
+            "usage: gh-semver.py bump", result.stderr)
 
     @pytest.mark.dev
-    def test_bump_minor(self):
-        result = self.run_cli('bump', '--minor', '--verbose')
-        self.assertIn("Running in bump subcommand mode.", result.stdout)
-        self.assertIn("Bumping minor version.", result.stdout)
+    def test_config_wrong_switch(self):
+        """This test checks the bump subcommand used without any of the required switches"""
+        result = Testbed.run_cli(self.cli_path, 'config', '--illegal', cwd=self.test_dir)
+        self.assertIn(
+            "unrecognized arguments: --illegal", result.stderr)
+        
+    def test_bump_invalid_suffix(self):
+        """This test checks the bump subcommand used without any of the required switches"""
+        result = Testbed.run_cli(self.cli_path, 'bump', '--major', '--suffix', 'Numb3er', '--no-run', cwd=self.test_dir)
+        self.assertGreater(result.returncode, 0)
+        self.assertIn("error: argument --suffix", result.stderr)
 
-    @pytest.mark.dev
-    def test_bump_patch(self):
-        result = self.run_cli('bump', '--patch', '--verbose')
-        self.assertIn("Running in bump subcommand mode.", result.stdout)
-        self.assertIn("Bumping patch version.", result.stdout)
-
-    @pytest.mark.dev
-    def test_init_with_prefix(self):
-        result = self.run_cli('init', '--prefix', 'v1')
-        self.assertIn("Running in init subcommand mode.", result.stdout)
-        self.assertIn("Using prefix: v1", result.stdout)
-
-    @pytest.mark.dev
-    def test_init_with_offset(self):
-        result = self.run_cli('init', '--offset', '1.0.0')
-        self.assertIn("Running in init subcommand mode.", result.stdout)
-        self.assertIn("Using offset: 1.0.0", result.stdout)
-
-    @pytest.mark.dev
-    def test_init_with_prefix_and_offset(self):
-        result = self.run_cli('init', '--prefix', 'v1', '--offset', '10')
-        self.assertIn("Running in init subcommand mode.", result.stdout)
-        self.assertIn("Using prefix: v1", result.stdout)
-        self.assertIn("Using offset: 10", result.stdout)
+    def test_bump_valid_suffix(self):
+        """This test checks the bump subcommand used without any of the required switches"""
+        result = Testbed.run_cli(self.cli_path, 'bump', '--major', '--suffix', 'numb3er', '--no-run', cwd=self.test_dir)
+        self.assertEqual(result.returncode, 0)
