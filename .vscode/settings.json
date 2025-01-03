@@ -5,6 +5,8 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.analysis.extraPaths": [
-        "${workspaceFolder}/classes"
+        "${workspaceFolder}/classes",
+        "${workspaceFolder}/tests",
+        "${workspaceFolder}"
     ]
 }

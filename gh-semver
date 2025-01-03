@@ -11,4 +11,4 @@ if [ $? -ne 0 ]; then
     pipenv sync > /dev/null 2>&1
 fi
 
-pipenv run python $(dirname "$0")/gh-semver.py "$@"
+pipenv run python $(dirname "$0")/gh_semver.py "$@"
