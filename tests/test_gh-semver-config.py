@@ -91,4 +91,5 @@ class TestGhSemverConfig(unittest.TestCase):
         result = Testbed.run_cli(self.cli_path, 'config', '--offset',  'v0.0.0', cwd=self.test_dir)
         assert(result.returncode > 0)
         self.assertIn(  #try to set it to a non-valid value
-            "error: argument --offset:", result.stderr)        
+            "error: argument --offset:", result.stderr)     
+

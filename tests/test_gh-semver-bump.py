@@ -2,8 +2,15 @@ import subprocess
 import unittest
 import pytest
 import os
-import re
+import sys
 from .testbed import Testbed
+
+# Add the subdirectory containing the classes to the general class_path
+class_path = os.path.dirname(os.path.abspath(__file__))+"/classes"
+sys.path.append(class_path)
+
+from classes.semver import Semver
+
 
 class TestGhSemverBump(unittest.TestCase):
 
@@ -31,6 +38,17 @@ class TestGhSemverBump(unittest.TestCase):
         # Class-level teardown code
         print("Tearing down TestGhSemverBump class")
         #cls.__cleanup_testbed()
+
+    @pytest.mark.dev
+    def test_bump_major_mock(self):
+        Testbed.create_testbed(self.test_dir)
+        semver = Semver(workdir=self.test_dir)
+ 
+        cmd = semver.get_git_tag_cmd('major', 'Additional message', 'pending')
+        self.assertRegex(cmd, r"^git tag -a -m")
+        self.assertRegex(cmd, r"1.0.0$")
+# 'git tag -a -m "Bumped major from version \'version2.1.1-freetext\' to \'ver3.0.0-pending\'\nAdditional message" ver3.0.0-pending'
+
 
 
     @pytest.mark.dev

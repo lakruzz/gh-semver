@@ -17,7 +17,13 @@ class Semver:
     initial = "0.0.0"  # Default offset
     suffix = ''      # Default suffix
     message = ''     # Default message
-    
+    workdir = os.getcwd()
+    git_root = None
+
+    def __run_git(self, cmd=str):
+        result = subprocess.run(
+        cmd, capture_output=True, text=True, shell=True, cwd=self.workdir)
+        return result
 
     # Static methods
     @staticmethod
@@ -94,7 +100,20 @@ class Semver:
             return None, None
         
     # Instance methods
-    def __init__(self):
+    def __init__(self, workdir=None):
+        if workdir:
+            # check if the directory exists
+            if not os.path.exists(workdir):
+                raise FileNotFoundError(f"Directory {workdir} does not exist")
+            self.workdir = workdir
+
+        result = self.__run_git('git rev-parse --show-toplevel')
+        if not result.returncode == 0:
+            raise FileNotFoundError(f"Not running in a git repository: {result.stderr}")
+            sys.exit(1)
+        self.git_root = result.stdout.strip()
+        self.config_file = self.git_root + '/' + self.config_file
+
         config = self.get_config()
         self.prefix = config.get('prefix', self.prefix)
         self.initial = config.get('initial', self.initial)
@@ -119,11 +138,8 @@ class Semver:
     def get_config(self):
         """Read the .semver.config file and return the configuration"""
         config_map = {}
-        try:
-            config = os.popen(
-                'git config list --file $(git rev-parse --show-toplevel)/.semver.config 2>/dev/null').read().strip()
-        except Exception:
-            pass
+
+        config = self.__run_git(f'git config list --file {self.config_file}').stdout
         try:
             for line in config.split('\n'):
                 key, value = line.split('=')
