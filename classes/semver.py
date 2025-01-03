@@ -19,6 +19,11 @@ class Semver:
     message = ''     # Default message
     workdir = os.getcwd()
     git_root = None
+    config = None
+    semver_tags = {}
+    current_semver = None
+    current_tag = None
+    next ={}
 
     def __run_git(self, cmd=str):
         result = subprocess.run(
@@ -113,12 +118,25 @@ class Semver:
             sys.exit(1)
         self.git_root = result.stdout.strip()
         self.config_file = self.git_root + '/' + self.config_file
+        self.config = self.__get_config()
+        self.prefix = self.config.get('prefix', self.prefix)
+        self.initial = self.config.get('initial', self.initial)
+        self.suffix = self.config.get('suffix', self.suffix)
 
-        config = self.get_config()
-        self.prefix = config.get('prefix', self.prefix)
-        self.initial = config.get('initial', self.initial)
-        self.suffix = config.get('suffix', self.suffix)
-        self.current_semver, self.current_tag = Semver.__get_current_semver_tuple()
+        #tags = os.popen('git tag').read().strip().split('\n')
+        tags = self.__run_git('git tag').stdout.strip().split('\n')
+        semver_pattern = re.compile(r'(\d+)\.(\d+)\.(\d+)')
+
+        for tag in tags:
+            match = semver_pattern.search(tag)
+            if match:
+                self.semver_tags[tuple(map(int, match.groups()))] = tag
+
+        if self.semver_tags:
+            sorted_semver_tags = sorted(self.semver_tags.keys())
+            self.current_semver = sorted_semver_tags[-1]
+            self.current_tag = self.semver_tags[sorted_semver_tags[-1]]
+
         if not self.current_semver:
             try:
                 self.current_semver = tuple(map(int, self.initial.split('.')))
@@ -126,8 +144,6 @@ class Semver:
                 print(f"Failed to parse initial version, doesn't look like a three-level integer: {e}")
             self.current_tag = self.prefix + self.initial + self.suffix
 
-        # Initialize next potential versions as strings
-        self.next ={}
         # Bump major, reset minor and patch
         self.next['major'] = f"{self.current_semver[0] + 1}.0.0"
         # Leave major, bump minor, reset patch
@@ -135,10 +151,11 @@ class Semver:
         # Leave major and minor, bump patch
         self.next['patch'] = f"{self.current_semver[0]}.{self.current_semver[1]}.{self.current_semver[2] + 1}"
 
-    def get_config(self):
+    def __get_config(self):
         """Read the .semver.config file and return the configuration"""
         config_map = {}
-
+        
+        # The config_file may not exist - we don't care. Just continue and return an empty dict
         config = self.__run_git(f'git config list --file {self.config_file}').stdout
         try:
             for line in config.split('\n'):
@@ -195,13 +212,8 @@ class Semver:
 
   
     def bump(self, level=str, message=None, suffix=None):
-        was_semver, was_tag = self.current_semver, self.current_tag
-        try:
-            cmd = self.get_git_tag_cmd(level, message, suffix)
-            subprocess.check_call(cmd, shell=True)
-        except Exception as e:
-            print(f"Failed to run command: {e}")
-            sys.exit(1)
+        cmd = self.get_git_tag_cmd(level, message, suffix)
+        result = self.__run_git(cmd)
         self.current_semver, self.current_tag = Semver.__get_current_semver_tuple()
         return self.current_tag
 
