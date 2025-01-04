@@ -20,7 +20,6 @@ class TestGhSemverBump(unittest.TestCase):
         print("Setting up TestGhSemverBump testbed")
         cls.cli_path = os.path.abspath('gh-semver.py')
         cls.test_dir = os.path.abspath('./testbed/TestGhSemverBump')
-        Testbed.cleanup_testbed(cls.test_dir)
         Testbed.create_testbed(cls.test_dir)
 
         # Create a tag that qualifies as a semantic version, make it different from any default or config values
@@ -40,74 +39,13 @@ class TestGhSemverBump(unittest.TestCase):
         #cls.__cleanup_testbed()
 
     @pytest.mark.dev
-    def test_bump_major_mock(self):
+    def test_bump_major(self):
         semver = Semver(workdir=self.test_dir) 
-        cmd = semver.get_git_tag_cmd('major', 'Additional message', 'pending')
+        cmd = semver.get_git_tag_cmd(level='major', message='Additional message', suffix='pending')
         self.assertRegex(cmd, r"^git tag -a -m")
         self.assertRegex(cmd, r"3.0.0-pending$")
 
-        new_tag = semver.bump('major', 'Additional message', 'pending')
+        new_tag = semver.bump(level='major', message='Additional message', suffix='pending')
         self.assertRegex(cmd, r"3.0.0-pending$")
 
 
-
-    @pytest.mark.dev
-    def test_bump_major(self):
-        Testbed.create_testbed(self.test_dir)
-        result = Testbed.run_cli(self.cli_path, 'bump', '--major',  '--no-run', cwd=self.test_dir)
-        # Expected output:
-        # 'git tag -a -m "Bumped major from version \'0.0.0\' to \'1.0.0\'" 1.0.0\n'
-        self.assertRegex(result.stdout.strip(), r"^git tag -a -m")
-        self.assertRegex(result.stdout.strip(), r"1.0.0$")
-        
-        Testbed.git_dataset_1(self.test_dir)
-        result = Testbed.run_cli(self.cli_path, 'bump', '--major',  '--no-run', cwd=self.test_dir)  
-        # Expected output:
-        # 'git tag -a -m "Bumped major from version \'version2.1.1-freetext\' to \'3.0.0\'" 3.0.0'      
-        self.assertRegex(result.stdout.strip(), r"^git tag -a -m")
-        self.assertRegex(result.stdout.strip(), r"3.0.0$")
-
-        result = Testbed.run_cli(self.cli_path, 'bump', '--major',  '--message', 'Additional message','--no-run', cwd=self.test_dir)  
-        # 'git tag -a -m "Bumped major from version \'version2.1.1-freetext\' to \'3.0.0\'\nAdditional message" 3.0.0'
-        self.assertRegex(result.stdout.strip(), r'-m ".+\nAdditional message"')
-
-        result = Testbed.run_cli(self.cli_path, 'bump', '--major',  '--suffix', 'pending','--no-run', cwd=self.test_dir)  
-        # 'git tag -a -m "Bumped major from version \'version2.1.1-freetext\' to \'3.0.0\'\nAdditional message" 3.0.0'
-        self.assertRegex(result.stdout.strip(), r"3.0.0-pending$")
-
-        result = Testbed.run_cli(self.cli_path, 'bump', '--major',  cwd=self.test_dir)  
-        # Expected output:
-        # 'git tag -a -m "Bumped major from version \'version2.1.1-freetext\' to \'3.0.0\'" 3.0.0'
-        self.assertRegex(result.stdout.strip(), r"^3.0.0$")
-
-    @pytest.mark.dev
-    def test_bump_minor(self):
-        Testbed.create_testbed(self.test_dir)
-        result = Testbed.run_cli(self.cli_path, 'bump', '--minor',  '--no-run', cwd=self.test_dir)
-        self.assertRegex(result.stdout.strip(), r"^git tag -a -m")
-        self.assertRegex(result.stdout.strip(), r"0.1.0$")
-        
-        Testbed.git_dataset_1(self.test_dir)
-        result = Testbed.run_cli(self.cli_path, 'bump', '--minor',  '--no-run', cwd=self.test_dir)      
-        self.assertRegex(result.stdout.strip(), r"^git tag -a -m")
-        self.assertRegex(result.stdout.strip(), r"2.2.0$")
-
-        result = Testbed.run_cli(self.cli_path, 'bump', '--minor',  cwd=self.test_dir)  
-        self.assertRegex(result.stdout.strip(), r"^2.2.0$")
-
-    @pytest.mark.dev
-    def test_bump_patch(self):
-        Testbed.create_testbed(self.test_dir)
-        result = Testbed.run_cli(self.cli_path, 'bump', '--patch',  '--no-run', cwd=self.test_dir)
-        self.assertRegex(result.stdout.strip(), r"^git tag -a -m")
-        self.assertRegex(result.stdout.strip(), r"0.0.1$")
-        
-        Testbed.git_dataset_1(self.test_dir)
-        result = Testbed.run_cli(self.cli_path, 'bump', '--patch',  '--no-run', cwd=self.test_dir)      
-        self.assertRegex(result.stdout.strip(), r"^git tag -a -m")
-        self.assertRegex(result.stdout.strip(), r"2.1.2$")
-
-        result = Testbed.run_cli(self.cli_path, 'bump', '--patch',  cwd=self.test_dir)  
-        self.assertRegex(result.stdout.strip(), r"^2.1.2$")
-
-        

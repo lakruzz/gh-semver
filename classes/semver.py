@@ -11,15 +11,19 @@ sys.path.append(class_path)
 
 
 class Semver:
-    # Class variables
+    """Class used to represent the semver state of git repository"""
+
+    # Class constants
     config_file = ".semver.config"    
-    prefix = ''      # Default prefix
-    initial = "0.0.0"  # Default offset
-    suffix = ''      # Default suffix
-    message = ''     # Default message
-    workdir = os.getcwd()
+
+    # Class variables
+
+    prefix = None
+    initial = None
+    suffix = None
+    workdir = os.getcwd() # Required, therefore also  set at class level to allow a null constructor
     git_root = None
-    config = None
+    config = {}
     semver_tags = {}
     current_semver = None
     current_tag = None
@@ -28,82 +32,8 @@ class Semver:
     def __run_git(self, cmd=str):
         result = subprocess.run(
         cmd, capture_output=True, text=True, shell=True, cwd=self.workdir)
-        return result
-
-    # Static methods
-    @staticmethod
-    def get_current_semver():
-        """Return the current semver tag"""
-        semver=Semver()
-        return semver.current_tag
-    
-
-    @staticmethod
-    def __get_initial_offset():
-        # If `git config --get semver.initial` returns a value, return it as the offset else
-        # try `gitconfig --get --file .semver.config semver.initial` and if it returns a value then use that
-        # else return the default value Semver.initial
- 
-        prefix = Semver.__get_prefix()
-        try:
-            initial_offset = os.popen(
-                'git config get semver.initial').read().strip()
-            if initial_offset:
-                return initial_offset
-        except Exception:
-            pass
-
-        try:
-            initial_offset = os.popen(
-                'git config get --file $(git rev-parse --show-toplevel)/.semver.config semver.initial').read().strip()
-            if initial_offset:
-                return initial_offset
-        except Exception:
-            pass
-
-        return Semver.initial
-    
-    @staticmethod
-    def __get_prefix():
-       # If `git config --get semver.prefix` returns a value, return it as the prefix else
-       # try `gitconfig --get --file .semver.config semver.prefix` and if it returns a value then use that
-       # else return the default value Semver.prefix
-        try:
-            initial_offset = os.popen(
-                'git config get semver.prefix').read().strip()
-            if initial_offset:
-                return initial_offset
-        except Exception:
-            pass
-
-        try:
-            initial_offset = os.popen(
-                'git config get --file $(git rev-parse --show-toplevel)/.semver.config semver.prefix'
-                ).read().strip()
-            if initial_offset:
-                return initial_offset
-        except Exception:
-            pass
-
-        return Semver.prefix
-
-    @staticmethod
-    def __get_current_semver_tuple():    
-        tags = os.popen('git tag').read().strip().split('\n')
-        semver_pattern = re.compile(r'(\d+)\.(\d+)\.(\d+)')
-        semver_tags = {}
-
-        for tag in tags:
-            match = semver_pattern.search(tag)
-            if match:
-                semver_tags[tuple(map(int, match.groups()))] = tag
-
-        if semver_tags:
-            sorted_semver_tags = sorted(semver_tags.keys())
-            return sorted_semver_tags[-1], semver_tags[sorted_semver_tags[-1]]
-        else:
-            return None, None
-        
+        return result    
+          
     # Instance methods
     def __init__(self, workdir=None):
         if workdir:
@@ -118,14 +48,26 @@ class Semver:
             sys.exit(1)
         self.git_root = result.stdout.strip()
         self.config_file = self.git_root + '/' + self.config_file
-        self.config = self.__get_config()
-        self.prefix = self.config.get('prefix', self.prefix)
-        self.initial = self.config.get('initial', self.initial)
-        self.suffix = self.config.get('suffix', self.suffix)
 
-        #tags = os.popen('git tag').read().strip().split('\n')
+        self.__read_semver_config()
+        self.___read_semver_tags()
+
+    def ___read_semver_tags(self):
+        """Desinged to be called from __init__ to read the tags in the repo and again 
+        after a from bump, when a new tag is created.
+
+        Reads the tags in the repo, extract the semantic version tags
+        and store them in a dictionary (semver_tags) with the tuple of the
+        three integers as the key and the tag as the value and keep the most recent
+        version (current_semver and current_tag).
+
+        Also sets the next major, minor and patch versions in the next dictionary.
+        """
+
         tags = self.__run_git('git tag').stdout.strip().split('\n')
         semver_pattern = re.compile(r'(\d+)\.(\d+)\.(\d+)')
+
+        self.semver_tags = {}
 
         for tag in tags:
             match = semver_pattern.search(tag)
@@ -143,32 +85,36 @@ class Semver:
             except Exception as e:
                 print(f"Failed to parse initial version, doesn't look like a three-level integer: {e}")
             self.current_tag = self.prefix + self.initial + self.suffix
-
+        
         # Bump major, reset minor and patch
         self.next['major'] = f"{self.current_semver[0] + 1}.0.0"
         # Leave major, bump minor, reset patch
         self.next['minor'] = f"{self.current_semver[0]}.{self.current_semver[1] + 1}.0"
         # Leave major and minor, bump patch
         self.next['patch'] = f"{self.current_semver[0]}.{self.current_semver[1]}.{self.current_semver[2] + 1}"
-
-    def __get_config(self):
-        """Read the .semver.config file and return the configuration"""
-        config_map = {}
+     
+    def __read_semver_config(self):
+        """Read the .semver.config file and store the configuration as a dictionary"""
         
+        self.config = {}
+
         # The config_file may not exist - we don't care. Just continue and return an empty dict
         config = self.__run_git(f'git config list --file {self.config_file}').stdout
         try:
             for line in config.split('\n'):
                 key, value = line.split('=')
                 if key == 'semver.prefix':
-                    config_map['prefix'] = value
+                    self.config['prefix'] = value
                 elif key == 'semver.initial':
-                    config_map['initial'] = value
+                    self.config['initial'] = value
                 elif key == 'semver.suffix':
-                    config_map['suffix'] = value
+                    self.config['suffix'] = value
         except Exception:
             pass
-        return config_map
+
+        self.prefix = self.config.get('prefix', '')
+        self.initial = self.config.get('initial', '0.0.0')
+        self.suffix = self.config.get('suffix', '')
     
     def set_config(self, prefix=None, offset=None, suffix=None):
         """Set the configuration in the .semver.config file"""
@@ -214,7 +160,7 @@ class Semver:
     def bump(self, level=str, message=None, suffix=None):
         cmd = self.get_git_tag_cmd(level, message, suffix)
         result = self.__run_git(cmd)
-        self.current_semver, self.current_tag = Semver.__get_current_semver_tuple()
+        self.___read_semver_tags()
         return self.current_tag
 
     def get_git_tag_cmd(self, level=str, message=None, suffix=None):
