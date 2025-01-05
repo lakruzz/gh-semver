@@ -3,7 +3,6 @@ import subprocess
 import sys
 import re
 
-
 # Add directory of this class to the general class_path
 # to allow import of sibling classes
 class_path = os.path.dirname(os.path.abspath(__file__))
@@ -40,11 +39,11 @@ class Semver:
             # check if the directory exists
             if not os.path.exists(workdir):
                 raise FileNotFoundError(f"Directory {workdir} does not exist")
-            self.workdir = workdir
+            self.workdir = os.path.abspath(workdir)
 
         result = self.__run_git('git rev-parse --show-toplevel')
-        if not result.returncode == 0:
-            raise FileNotFoundError(f"Not running in a git repository: {result.stderr}")
+        if not result.returncode == 0: 
+            raise FileNotFoundError(f"{result.stderr}")
             sys.exit(1)
         self.git_root = result.stdout.strip()
         self.config_file = self.git_root + '/' + self.config_file
@@ -83,7 +82,7 @@ class Semver:
             try:
                 self.current_semver = tuple(map(int, self.initial.split('.')))
             except Exception as e:
-                print(f"Failed to parse initial version, doesn't look like a three-level integer: {e}")
+                raise ValueError(f"Failed to parse initial version, doesn't look like a three-level integer: {e}")  
             self.current_tag = self.prefix + self.initial + self.suffix
         
         # Bump major, reset minor and patch
@@ -116,46 +115,17 @@ class Semver:
         self.initial = self.config.get('initial', '0.0.0')
         self.suffix = self.config.get('suffix', '')
     
-    def set_config(self, prefix=None, offset=None, suffix=None):
+    def set_config(self, prefix=None, initial=None, suffix=None):
         """Set the configuration in the .semver.config file"""
 
         updated = False
-
-        if prefix:
-            try:
-                subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.prefix {prefix}', shell=True)
-            except subprocess.CalledProcessError as e:
-                print(f"Failed to set prefix: {e}")
-                sys.exit(1)
-            updated = True
-            self.prefix = prefix
-            print (f"semver.prefix = {prefix}")
-        if offset:
-            try:
-                subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.initial {offset}', shell=True)
-            except subprocess.CalledProcessError as e:
-                print(f"Failed to set offset: {e}")
-            updated = True
-            self.initial = offset
-            print (f"semver.offset = {offset}")
-        if suffix:
-            try:
-                subprocess.check_call(f'git config --file $(git rev-parse --show-toplevel)/{self.config_file} semver.suffix {suffix}', shell=True)
-            except subprocess.CalledProcessError as e:  
-                print(f"Failed to set suffix: {e}")
-            updated = True
-            self.suffix = suffix
-            print (f"semver.suffix = {suffix}")
+        args = {'prefix': prefix, 'initial': initial, 'suffix': suffix}
+        for setting in args.keys():
+            if args[setting]:
+                result = self.__run_git(f'git config --file {self.config_file} semver.{setting} {args[setting]}')
+                updated = True     
+        self.__read_semver_config()
         
-        if not updated:
-            current_config = self.get_config()
-            print("Current configuration:")
-            if current_config:
-                for key, value in current_config.items():
-                    print(f"  semver.{key} = {value}") 
-            else:
-                print("  No configuration defined")       
-
   
     def bump(self, level=str, message=None, suffix=None):
         cmd = self.get_git_tag_cmd(level, message, suffix)
