@@ -13,7 +13,7 @@ sys.path.append(class_path)
 from classes.semver import Semver
 
 
-class TestGhSemverBump(unittest.TestCase):
+class TestGhSemverUnitTest(unittest.TestCase):
 
     @classmethod
     def setup_class(cls):
