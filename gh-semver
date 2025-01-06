@@ -31,24 +31,23 @@ check_pipenv() {
 
 ## Main script
 
+# Attempt to get the virtual environment path
+export PIPENV_VERBOSITY=-1
+export PIPENV_CUSTOM_VENV_NAME=gh-semver
+
 ensure_python
 check_pipenv
 
 # Set the PIPENV_VENV environment variable to specify a common location for the virtual environment
 #export PIPENV_VENV="$HOME/.local/share/pipenvs/gh-semver"
 
-# Attempt to get the virtual environment path
-export PIPENV_VERBOSITY=-1
-
-# Set a fixed path for the pipenv environment
-PIPENV_VENV="$HOME/.local/share/pipenvs/gh-semver"
 
 pipenv --venv > /dev/null 2>&1
 
 # If pipenv --venv failed, it means no virtual environment exists
 if [ $? -ne 0 ]; then
     echo "First time around - Setting up pipenv environment..."
-    pipenv sync > /dev/null 2>&1
+    pipenv sync --bare -q > /dev/null 2>&1
 fi
 
 pipenv run python $(dirname "$0")/gh_semver.py "$@"
