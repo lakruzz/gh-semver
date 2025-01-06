@@ -33,6 +33,7 @@ check_pipenv() {
 
 # Attempt to get the virtual environment path
 export PIPENV_VERBOSITY=-1
+export PIPENV_VENV_IN_PROJECT=1
 export PIPENV_CUSTOM_VENV_NAME=gh-semver
 
 ensure_python
