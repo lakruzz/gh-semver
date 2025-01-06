@@ -12,15 +12,17 @@ ensure_python() {
 # Function to check if pipenv is installed and provide instructions if not
 check_pipenv() {
     if ! command -v pipenv &> /dev/null; then
-        echo "\nThis scripts is designed to run in an isolated pipenv environment."
+        echo ""
+        echo "This scripts is designed to run in an isolated pipenv environment."
         echo "...but pipenv is not installed on your system."
-        echo "Given the myriad of ways to install pipenv, we leave it up to you fix it yourself.\n"
+        echo "Given the myriad of ways to install pipenv, we leave it up to you fix it yourself."
+        wcho ""
         echo "Here are some common ways:"
-        echo "\n1. Using pip (recommended for most users):"
+        echo "1. Using pip (recommended for most users):"
         echo "   python3 -m pip install --user pipenv"
-        echo "\n2. Using Homebrew (recommended for macOS users):"
+        echo "2. Using Homebrew (recommended for macOS users):"
         echo "   brew install pipenv"
-        echo "\n3. Using pipx (alternative method):"
+        echo "3. Using pipx (alternative method):"
         echo "   brew install pipx"
         echo "   pipx install pipenv"
         exit 1
