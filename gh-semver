@@ -8,21 +8,22 @@ ensure_python() {
     fi
 }
 
-# Function to check if pip is installed and install it if not
-ensure_pip() {
-    if ! command -v pip &> /dev/null; then
-        echo "pip not found. Installing pip using ensurepip..."
-        python3 -m ensurepip --upgrade --break-system-packages
-    fi
-}
 
-ensure_pipenv() {
+# Function to check if pipenv is installed and provide instructions if not
+check_pipenv() {
     if ! command -v pipenv &> /dev/null; then
-        echo "pipenv not found. Installing pipenv..."
-        ensure_pip
-        pip install --user pipenv
-        # Add the user base's bin directory to PATH
-        export PATH="$PATH:$(python3 -m site --user-base)/bin"
+        echo "This scripts is designed to run in an isolated pipenv environment."
+        echo "...but pipenv is not installed on your system."
+        echo "Given the myriad of ways to install pipenv, we leave it up to you fix it yourself."
+        echo "Here are some common ways:"
+        echo "1. Using pip (recommended for most users):"
+        echo "   python3 -m pip install --user pipenv"
+        echo "2. Using Homebrew (recommended for macOS users):"
+        echo "   brew install pipenv"
+        echo "3. Using pipx (alternative method):"
+        echo "   brew install pipx"
+        echo "   pipx install pipenv"
+        exit 1
     fi
 }
 
@@ -37,7 +38,7 @@ fi
 ## Main script
 
 ensure_python
-ensure_pipenv
+check_pipenv
 
 
 # Attempt to get the virtual environment path
