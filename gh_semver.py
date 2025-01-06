@@ -63,7 +63,7 @@ def parse(args=None):
 
 
 if __name__ == "__main__":
-    args = parse(sys.argv)
+    args = parse(sys.argv[1:])
 
     # Handle the case where no subcommand is provided
     if args.command is None:

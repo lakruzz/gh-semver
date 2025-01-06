@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Check if pipenv is installed
+if ! command -v pipenv &> /dev/null; then
+    echo "pipenv not found. Installing pipenv..."
+    pip install --user pipenv
+    # Add the user base's bin directory to PATH
+    export PATH="$PATH:$(python3 -m site --user-base)/bin"
+fi
+
 # Attempt to get the virtual environment path
 pipenv --venv > /dev/null 2>&1
 
