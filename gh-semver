@@ -20,7 +20,7 @@ check_pipenv() {
         echo "Here are some common ways:"
         echo "1. Using pip (recommended for most users):"
         echo "   python3 -m pip install --user pipenv"
-        echo "2. Using Homebrew (recommended for macOS users):"
+        echo "2. Using Homebrew (for macOS users who installed python through Homebrew):"
         echo "   brew install pipenv"
         echo "3. Using pipx (alternative method):"
         echo "   brew install pipx"
@@ -29,24 +29,21 @@ check_pipenv() {
     fi
 }
 
-# Check if pipenv is installed
-if ! command -v pipenv &> /dev/null; then
-    echo "pipenv not found. Installing pipenv..."
-    pip install --user pipenv
-    # Add the user base's bin directory to PATH
-    export PATH="$PATH:$(python3 -m site --user-base)/bin"
-fi
-
 ## Main script
 
 ensure_python
 check_pipenv
 
+# Set the PIPENV_VENV environment variable to specify a common location for the virtual environment
+#export PIPENV_VENV="$HOME/.local/share/pipenvs/gh-semver"
 
 # Attempt to get the virtual environment path
-pipenv --venv > /dev/null 2>&1
-
 export PIPENV_VERBOSITY=-1
+
+# Set a fixed path for the pipenv environment
+PIPENV_VENV="$HOME/.local/share/pipenvs/gh-semver"
+
+pipenv --venv > /dev/null 2>&1
 
 # If pipenv --venv failed, it means no virtual environment exists
 if [ $? -ne 0 ]; then
