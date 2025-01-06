@@ -1,5 +1,31 @@
 #!/usr/bin/env bash
 
+# Function to check if puython is installed
+ensure_python() {
+    if ! command -v python3 &> /dev/null; then
+        echo "Python 3 not found. Please install Python 3."
+        exit 1
+    fi
+}
+
+# Function to check if pip is installed and install it if not
+ensure_pip() {
+    if ! command -v pip &> /dev/null; then
+        echo "pip not found. Installing pip using ensurepip..."
+        python3 -m ensurepip # --upgrade
+    fi
+}
+
+ensure_pipenv() {
+    if ! command -v pipenv &> /dev/null; then
+        echo "pipenv not found. Installing pipenv..."
+        ensure_pip
+        pip install --user pipenv
+        # Add the user base's bin directory to PATH
+        export PATH="$PATH:$(python3 -m site --user-base)/bin"
+    fi
+}
+
 # Check if pipenv is installed
 if ! command -v pipenv &> /dev/null; then
     echo "pipenv not found. Installing pipenv..."
@@ -7,6 +33,12 @@ if ! command -v pipenv &> /dev/null; then
     # Add the user base's bin directory to PATH
     export PATH="$PATH:$(python3 -m site --user-base)/bin"
 fi
+
+## Main script
+
+ensure_python
+ensure_pipenv
+
 
 # Attempt to get the virtual environment path
 pipenv --venv > /dev/null 2>&1
