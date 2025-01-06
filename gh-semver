@@ -12,7 +12,7 @@ ensure_python() {
 ensure_pip() {
     if ! command -v pip &> /dev/null; then
         echo "pip not found. Installing pip using ensurepip..."
-        python3 -m ensurepip --upgrade
+        python3 -m ensurepip --upgrade --break-system-packages
     fi
 }
 
