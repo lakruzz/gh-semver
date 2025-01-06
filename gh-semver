@@ -40,10 +40,7 @@ export PIPENV_PIPFILE=$(dirname "$0")/Pipfile
 ensure_python
 check_pipenv
 
-# Set the PIPENV_VENV environment variable to specify a common location for the virtual environment
-#export PIPENV_VENV="$HOME/.local/share/pipenvs/gh-semver"
-
-
+# Check if a virtual environment exists
 pipenv --venv > /dev/null 2>&1
 
 # If pipenv --venv failed, it means no virtual environment exists
