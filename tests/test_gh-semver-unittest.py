@@ -61,10 +61,13 @@ class TestGhSemverUnitTest(unittest.TestCase):
         self.assertRegex(semver.initial, r"^0.0.0$")
         self.assertRegex(semver.suffix, r"^$")
 
-        semver.set_config(prefix='ver', initial='1.0.0', suffix='-pending')
+        semver.set_config(prefix='ver', initial='1.0.0', suffix='pending')
         self.assertRegex(semver.prefix, r"^ver$")
         self.assertRegex(semver.initial, r"^1.0.0$")
-        self.assertRegex(semver.suffix, r"^-pending$")
+        self.assertRegex(semver.suffix, r"^pending$")
+
+        cmd = semver.get_git_tag_cmd(level='minor')
+        self.assertRegex(cmd, r"ver1.1.0-pending$")
 
     @pytest.mark.dev
     def test_bad_config(self):
