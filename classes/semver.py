@@ -162,4 +162,4 @@ class Semver:
         
         next_tag = f"{self.prefix}{self.next[level]}{suffix}"
 
-        return f"git tag -a -m \"Bumped {level} from version '{self.current_tag}' to '{next_tag}'{message}\" {next_tag}"
+        return f"git tag -a -m \"{next_tag}\nBumped {level} from version '{self.current_tag}' to '{next_tag}'{message}\" {next_tag}"
