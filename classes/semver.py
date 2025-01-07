@@ -48,10 +48,10 @@ class Semver:
         self.git_root = result.stdout.strip()
         self.config_file = self.git_root + '/' + self.config_file
 
+        self.__read_semver_tags()
         self.__read_semver_config()
-        self.___read_semver_tags()
 
-    def ___read_semver_tags(self):
+    def __read_semver_tags(self):
         """Desinged to be called from __init__ to read the tags in the repo and again 
         after a from bump, when a new tag is created.
 
@@ -79,12 +79,22 @@ class Semver:
             self.current_tag = self.semver_tags[sorted_semver_tags[-1]]
 
         if not self.current_semver:
-            try:
-                self.current_semver = tuple(map(int, self.initial.split('.')))
-            except Exception as e:
-                raise ValueError(f"Failed to parse initial version, doesn't look like a three-level integer: {e}")  
-            self.current_tag = self.prefix + self.initial + self.suffix
-        
+            self.__set_current_semver_from_initial()
+
+        self.__set_next_versions()
+
+    def __set_current_semver_from_initial(self):
+
+        if self.initial == None:
+            self.initial = '0.0.0'
+        try:
+            self.current_semver = tuple(map(int, self.initial.split('.')))
+        except Exception as e:
+            raise ValueError(f"Failed to parse initial version, doesn't look like a three-level integer: {e}")  
+        self.current_tag = f"{self.prefix}{self.initial}{self.suffix}"
+    
+
+    def __set_next_versions(self):    
         # Bump major, reset minor and patch
         self.next['major'] = f"{self.current_semver[0] + 1}.0.0"
         # Leave major, bump minor, reset patch
@@ -114,6 +124,9 @@ class Semver:
         self.prefix = self.config.get('prefix', '')
         self.initial = self.config.get('initial', '0.0.0')
         self.suffix = self.config.get('suffix', '')
+        if self.semver_tags.keys().__len__() == 0:
+            self.__set_current_semver_from_initial()
+            self.__set_next_versions()
     
     def set_config(self, prefix=None, initial=None, suffix=None):
         """Set the configuration in the .semver.config file"""
@@ -130,7 +143,7 @@ class Semver:
     def bump(self, level=str, message=None, suffix=None):
         cmd = self.get_git_tag_cmd(level, message, suffix)
         result = self.__run_git(cmd)
-        self.___read_semver_tags()
+        self.__read_semver_tags()
         return self.current_tag
 
     def get_git_tag_cmd(self, level=str, message=None, suffix=None):
@@ -141,8 +154,11 @@ class Semver:
 
         if suffix:
             suffix = f"-{suffix}"
-        else:    
-            suffix = ""
+        else:
+            if self.suffix: 
+                suffix = f"-{self.suffix}"
+            else:
+                suffix = ""
         
         next_tag = f"{self.prefix}{self.next[level]}{suffix}"
 

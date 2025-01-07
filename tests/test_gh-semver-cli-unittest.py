@@ -4,7 +4,6 @@ import os
 import sys
 from unittest.mock import patch, Mock
 from io import StringIO
-import argparse
 
 # Import the main function from gh-semver.py
 # This is the function that will be tested
@@ -12,7 +11,7 @@ import argparse
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import the main function from gh-semver.py
-from gh_semver import parse
+from gh_semver import *
 from .testbed import Testbed
 
 class TestGhSemverCLI(unittest.TestCase):
@@ -74,6 +73,7 @@ class TestGhSemverCLI(unittest.TestCase):
         self.assertEqual(valid.prefix, 'ver')
         self.assertEqual(valid.suffix, 'dev')
         self.assertEqual(valid.initial, '1.0.0')
+
 
     @pytest.mark.dev
     def test_config_invalid_initial(self):

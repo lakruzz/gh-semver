@@ -10,7 +10,7 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
     def setup_class(cls):
         print(f"Setting up testbed for {cls.__name__} class")
         cls.test_dir = os.path.abspath(f"./testbed/{cls.__name__}")
-        cls.cli_path = os.path.abspath('gh-semver.py')
+        cls.cli_path = os.path.abspath('gh_semver.py')
         Testbed.create_testbed(cls.test_dir)
         Testbed.git_dataset_1(cls.test_dir)
 
@@ -21,7 +21,7 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         print(f"...not doing anything - testbed will be left for inspection and reset as part of the next test run")
 
 
-    @pytest.mark.dev
+    @pytest.mark.smoke
     def test_no_subcommand_initial(self):
         """Checks if the script returns the default initial version when no config files are setup"""
         Testbed.create_testbed(self.test_dir) # Get a clean testbed
@@ -29,7 +29,7 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         self.assertIn(
             "0.0.0", result.stdout)
         
-    @pytest.mark.dev
+    @pytest.mark.smoke
     def test_no_subcommand_from_config(self):
         """Check if the config files are read correctly"""
         Testbed.create_testbed(self.test_dir)
@@ -44,12 +44,10 @@ class TestGhSemverNoSubcommand(unittest.TestCase):
         subprocess.check_call('cd not-root', cwd=self.test_dir, shell=True)
         result = Testbed.run_cli(self.cli_path, cwd=self.test_dir+"/not-root")
         self.assertIn(
-            "ver1.0.0-pending", result.stdout)
-        
-
+            "ver1.0.0-pending", result.stdout)        
        
 
-    @pytest.mark.dev
+    @pytest.mark.smoke
     def test_no_subcommand_from_list(self):
         """Checks if the script returns the latest version from a list of tags"""
 
