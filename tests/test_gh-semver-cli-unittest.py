@@ -20,24 +20,17 @@ class TestGhSemverCLI(unittest.TestCase):
     @classmethod
     def setup_class(cls):
         print(f"Setting up testbed for {cls.__name__} class")
-        cls.test_dir = os.path.abspath(f"./testbed/{cls.__name__}")
-        cls.cli_path = os.path.abspath('gh-semver.py')
-        Testbed.create_testbed(cls.test_dir)
-        Testbed.git_dataset_1(cls.test_dir)
+#        cls.test_dir = os.path.abspath(f"./testbed/{cls.__name__}")
+#        cls.cli_path = os.path.abspath('gh-semver.py')
+#        Testbed.create_testbed(cls.test_dir)
+#        Testbed.git_dataset_1(cls.test_dir)
 
     @classmethod
     def teardown_class(cls):
         # Class-level teardown code
         print(f"Tearing down {cls.__name__} class testbed")
-        print(f"...not doing anything - testbed will be left for inspection and reset as part of the next test run")
 
-    @pytest.mark.dev
-    def test_bump(self):
-        args = ['bump', '--major', '--no-run']
-        valid = parse(args)
-        self.assertEqual(valid.command, 'bump')
-        self.assertTrue(valid.major)
-        self.assertFalse(valid.run)
+
         
     @pytest.mark.dev
     def test_bump_invalid_argument(self):
@@ -94,3 +87,11 @@ class TestGhSemverCLI(unittest.TestCase):
             self.assertEqual(cm.exception.code, 2)
             stderr = mock_stderr.getvalue()
             self.assertIn("Prefix: Allowed characters are lowercase and uppercase letters", stderr)
+
+    @pytest.mark.dev
+    def test_bump(self):
+        args = ['bump', '--major', '--no-run']
+        valid = parse(args)
+        self.assertEqual(valid.command, 'bump')
+        self.assertTrue(valid.major)
+        self.assertFalse(valid.run)
