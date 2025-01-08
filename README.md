@@ -4,6 +4,75 @@
 
 It helps creating annotated tags in git that adhere to the rules of Semantic Versioning
 
+The simple use case is to make sure that tags are create consistenly in the repo. And in a way where you don't have to look you the most recent semver tag in in your repo first:
+
+### Get the current (highest) SemVer tag in the repo
+
+```shell
+gh semver
+```
+
+A SemVer tag is defined as any tag that includes a three level integer (RegExp. `\d+\.\d+\.\d+`).
+
+It can have both a _preffix_ or a _suffix_ and still qualify. All the following examples would qualify:
+
+- v0.0.1
+- version1.1.1
+- ver1.2.1
+- version2.1.1-freetext
+- 2.2.234
+
+But this one wouldn't 
+
+- version3.11-freetext
+
+### Bump to the next - whatever that means
+
+You can use it like this
+
+```shell
+gh semver bump --major
+gh semver bump --minor
+gh semver bump --patch
+```
+### Predifine your _prefix_ and _suffix_ for the entire repo
+
+You might want to use a simple naming convention wher you wanb consistency like this
+
+- v0.0.1-alpha
+- v1.1.1-alpha
+- v1.2.1-alpha
+- v2.1.1-alpha
+- v2.2.234-alpha
+
+You can achive this by configuring _prefix_ and _suffix_ like this
+
+```shell
+gh config --prefix v --suffix alpha
+```
+
+### Get the git tag command, but don't run it
+
+You can also just use `gh semver` to generate the `git tag ...` commands, have them printed to `stdout` for you to read, verify and manipulate before your use it
+
+```shell
+gh semver bump --major --no-run
+gh semver bump --minor --no-run
+gh semver bump --patch --no-run
+```
+
+So soncequntly these two commands does exaclty the same:
+
+```shell
+gh semver bump --minor
+```
+
+```shell
+eval $(gh semver bump --minor --no-run)
+```
+
+More details on syntax below
+
 _Click the headings below to expand the details on the topic_
 
 <details><summary><h2>SemVer Basics</h2></summary>
