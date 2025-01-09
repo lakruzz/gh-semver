@@ -1,5 +1,16 @@
 # Contributing
 
+
+## My extension my rules!
+Create a fork and feel free to fool around. If you wish any of your contributions merged into the product's `main` prepare a pull request in yopur own fork and consider:
+
+1. No commit can be accepted on _our_ `main`, unless it references a [GitHub issue](https://github.com/lakruzz/gh-semver/issues)[^issue] in the commit message.
+2. Development branches must be [clearly marked which issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-a-branch-for-an-issue) they refer to.
+3. Develompent branches with more than one commit not reachable from `main` will be _squashed_ in to main - keep the commit message on branch tip crip!
+4. Development branches must be _fast-forward only_ when merged into _our_ `main`. You can achieve this by _always_ syncing the fork and rebasing your dev branch against _our_ `main` before you create the pull request.
+
+[^issue]: If there isn't any issue to work on, feel free to create it. The repo is Open Source, and while you don't have access to push to main, you do have access to create new issues.
+
 Run your dev environment from the devcontainer, simply start it up in VS Code and run the container locally in Docker or run it in a GitHub codespace.
 
 The `postCreateCommand` will intilize the pipenv to use by running
@@ -8,18 +19,20 @@ The `postCreateCommand` will intilize the pipenv to use by running
 pipenv sync
 ```
 
-After that, you should do ONE THING manually:
+After that, you should do **ONE THING manually**😱[^manual]:
+[^manual]: This is not ideal, but I havn't figured out how to add this specific setting to the configuration - please chip in with suggestions if you know how!
 
-In the Command Palette in VC Code search for and select `Python: Select interpreter...`
+In the Command Palette in VC Code search for and select `Python: Select interpreter...`. It's likely that you are presented with several options. You should pick the one that specifically mentions `(gh-semver*)` in the title.
 
-It's likely that you are presented with several options. You should pick the one that specifically mentions `(gh-semver*)` in the title.
-
+<img src="https://github.com/user-attachments/assets/92391bee-ffe4-473e-b83a-900dcac4cf52" align="right"/>
 Now you are good to go - start by going to the testing console and let see that the test discovery runs without any issues. After that you should see two test suites:
+
 - `test_gh-semver-smoketest.py`
 - `test_gh-semver-unittests.py`
 
 You should mainly pay attention to the the unittests. Run them, and run them again with coverage.
-If you make changes to this project you should at least gurantee that coverage is the same or higher when you push to main.
+If you contribute with to this project you should at least gurantee that coverage is the same or higher when you push to main.
+
 
 The shell script `gh-semver` is not included in the tests, but you can run it from the terminal like this:
 
@@ -50,12 +63,6 @@ gh extension install lakruzz/gh-semver # it will pull latest version from GitHub
 gh extension upgrade gh-semver # 'upgrade' is not supported on extenions installed with the locla syntax
 ```
 
-## My extension my rules!
-
-1. No commit should be created on `main`, unless it references a GitHub issue in the commit message
-2. Development branches must be clearly marked which issue they refer to
-3. Develompent branches with more than one commit not reachable from `main` must be _squashed_ in to main
-4. Development branches must be _fast-forward only_ when merged into `main` achive this bt _always_ rebasing your dev branch before you attempt to deliver it
 
 
 
