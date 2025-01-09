@@ -59,4 +59,7 @@ Any additional documantation, that may be to extensive to include in any of `REA
 ## Use Semantic Versioning and a package manager
 [SemVer basics](../README.md#semver-basics) are well, basic. And required. Release you marked versions as packages.
 
+#3 Enable a customer voice
+In GitHub it's easy, just turn on at least [issues](https://github.com/lakruzz/gh-semver/issues) but potentially also [discussions](https://github.com/lakruzz/gh-semver/discussions). You may want to use a different approach to establish a customer voice, but _not_ doing it is _not_ an option.
+
 
