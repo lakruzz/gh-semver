@@ -4,6 +4,9 @@
 [push]
   default = current
 
+[pull]
+  rebase = true
+
 [alias]
   undo-commit = reset --soft HEAD^
   addremove = add -A
