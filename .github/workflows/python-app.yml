@@ -6,7 +6,7 @@ name: Python application
 on:
   workflow_dispatch:
   push:
-    branches: [ "main", "[0-9]+" ]
+    branches: [ "main", "[0-9]+.*" ]
   pull_request:
     branches: [ "main" ]
 
