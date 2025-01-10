@@ -30,6 +30,8 @@ jobs:
         python-version: "3.12"
     - name: Install dependencies
       run: |
+        git config --global user.email "testrunnter@github.com"
+        git config --global user.name "testrunner"
         pip install pipenv
         pipenv sync --dev
     - name: Test with pytest
