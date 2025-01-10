@@ -26,6 +26,7 @@ jobs:
         python-version: "3.13"
     - name: Install dependencies
       run: |
+        pip install pipenv
         pipenv sync
     - name: Test with pytest
       run: |
