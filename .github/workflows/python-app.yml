@@ -34,12 +34,12 @@ jobs:
         git config --global user.name "testrunner"
         pip install pipenv
         pipenv sync --dev
-        
+
     - name: Test with pytest
       run: |
         pipenv run pytest --cov=. -m dev
 
-        - name: Generate coverage report
+    - name: Generate coverage report
     - run: |
         pipenv run coverage html
 
