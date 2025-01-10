@@ -6,7 +6,7 @@ name: Python application
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "[0-9]+" ]
   pull_request:
     branches: [ "main" ]
 
@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install pipenv
-        pipenv sync
+        pipenv sync --dev
     - name: Test with pytest
       run: |
-        pipenv run pytest -cov=. -m dev
+        pipenv run pytest --cov=. -m dev
