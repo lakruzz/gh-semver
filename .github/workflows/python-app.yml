@@ -40,7 +40,7 @@ jobs:
         pipenv run pytest --cov=. -m dev
 
     - name: Generate coverage report
-    - run: |
+      run: |
         pipenv run coverage html
 
     - name: Upload coverage report
