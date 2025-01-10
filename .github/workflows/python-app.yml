@@ -6,9 +6,13 @@ name: Python application
 on:
   workflow_dispatch:
   push:
-    branches: [ "main", ".*[0-9]+.*" ]
+#    branches: 
+#      - "main"
+    paths:
+      - ".github/workflows/python-app.yml"
   pull_request:
     branches: [ "main" ]
+
 
 permissions:
   contents: read
