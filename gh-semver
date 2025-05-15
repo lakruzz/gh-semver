@@ -1,12 +1,9 @@
-#!/usr/bin/env bash
-
-# Function to check if python is installed
-ensure_python3() {
-    if ! command -v python3 &> /dev/null; then
-        echo "Python 3 not found. Please install Python 3."
-        exit 1
-    fi
-}
+# Get script name without path
+SCRIPT_NAME=$(basename "$0")
+# Extract extension name (remove "gh-" prefix)
+EXTENSION_NAME=${SCRIPT_NAME#gh-}
+# Build Python script name
+PYTHON_SCRIPT="gh_${EXTENSION_NAME}.py"
 
 ensure_python3
-python3 $(dirname "$0")/gh_semver.py "$@"
+python3 $(dirname "$0")/$PYTHON_SCRIPT "$@"
