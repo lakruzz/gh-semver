@@ -94,7 +94,7 @@ class Semver:
         
         suffix = ''
         if self.suffix and self.suffix != '':
-            suffix = f"-{self.suffix}"
+            suffix = f"{self.suffix}"
             
         self.current_tag = f"{self.prefix}{self.initial}{suffix}"
     
@@ -158,10 +158,10 @@ class Semver:
             message = ""
 
         if suffix:
-            suffix = f"-{suffix}"
+            suffix = f"{suffix}"
         else:
             if self.suffix: 
-                suffix = f"-{self.suffix}"
+                suffix = f"{self.suffix}"
             else:
                 suffix = ""
         
