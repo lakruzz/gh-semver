@@ -120,10 +120,10 @@ class TestGhSemverUnitTest_testdata(unittest.TestCase):
         cmd = semver.get_git_tag_cmd(level='major', message='Additional message', suffix='pending')
         self.assertRegex(cmd, r'^git tag -a -m')
         self.assertRegex(cmd, r'Additional message"')
-        self.assertRegex(cmd, r"3.0.0-pending$")
+        self.assertRegex(cmd, r"3.0.0pending$")
 
         new_tag = semver.bump(level='major', message='Additional message', suffix='pending')
-        self.assertRegex(new_tag, r"3.0.0-pending$") 
+        self.assertRegex(new_tag, r"3.0.0pending$") 
         
         cmd = semver.bump(level='minor')
         self.assertRegex(cmd, r"3.1.0$")
@@ -163,7 +163,7 @@ class TestGhSemverUnitTest(unittest.TestCase):
         self.assertRegex(semver.suffix, r"^pending$")
 
         cmd = semver.get_git_tag_cmd(level='minor')
-        self.assertRegex(cmd, r"ver1.1.0-pending$")
+        self.assertRegex(cmd, r"ver1.1.0pending$")
 
     @pytest.mark.dev
     def test_semver_null_constructor(self):
