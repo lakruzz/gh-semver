@@ -18,6 +18,7 @@
   backward = checkout HEAD^1
   forward = !git checkout $(git log --all --ancestry-path ^HEAD --format=format:%H | tail -n 1)
   sweep = "!f() { git fetch --prune && for branch in $(git branch -vv | grep ': gone]' | awk \"{print \\$1}\"); do git branch -D \"$branch\"; done; }; f"
+  prerelease = "!f() { git push --tag && gh release create `gh semver` --latest --verify-tag --prerelease --generate-notes; }; f"
 
 
   [project]
