@@ -67,11 +67,14 @@ if __name__ == "__main__":
 
     # Handle the case where no subcommand is provided
     if args.command is None:
+        Semver().verbose(args.verbose)
         semver = Semver()
-        print(semver.current_tag)
+
+        print(semver.props['current_tag'])
         sys.exit(0)
 
     if args.command == 'bump':
+        Semver().verbose(args.verbose)
         semver = Semver()
         # Determine the level of the bump - it's safe to assume that one -  and only one - of the three options is always set
         level = args.major and 'major' or args.minor and 'minor' or 'patch'    
@@ -83,6 +86,7 @@ if __name__ == "__main__":
             print(result)
 
     if args.command == 'config':
+        Semver().verbose(args.verbose)
         semver = Semver()
         semver.set_config(prefix=args.prefix, initial=args.initial, suffix=args.suffix)
         sys.exit(0)

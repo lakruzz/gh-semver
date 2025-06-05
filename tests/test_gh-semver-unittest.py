@@ -153,14 +153,14 @@ class TestGhSemverUnitTest(unittest.TestCase):
     def test_config(self):
         subprocess.run('rm .semver.config', cwd=self.test_dir, shell=True)       
         semver = Semver(workdir=self.test_dir)
-        self.assertRegex(semver.prefix, r"^$")
-        self.assertRegex(semver.initial, r"^0.0.0$")
-        self.assertRegex(semver.suffix, r"^$")
+        self.assertRegex(semver.props['prefix'], r"^$")
+        self.assertRegex(semver.props['initial'], r"^0.0.0$")
+        self.assertRegex(semver.props['suffix'], r"^$")
 
         semver.set_config(prefix='ver', initial='1.0.0', suffix='pending')
-        self.assertRegex(semver.prefix, r"^ver$")
-        self.assertRegex(semver.initial, r"^1.0.0$")
-        self.assertRegex(semver.suffix, r"^pending$")
+        self.assertRegex(semver.props['prefix'], r"^ver$")
+        self.assertRegex(semver.props['initial'], r"^1.0.0$")
+        self.assertRegex(semver.props['suffix'], r"^pending$")
 
         cmd = semver.get_git_tag_cmd(level='minor')
         self.assertRegex(cmd, r"ver1.1.0pending$")
@@ -169,7 +169,7 @@ class TestGhSemverUnitTest(unittest.TestCase):
     def test_semver_null_constructor(self):
         semver = Semver()
         cwd = os.getcwd()
-        self.assertEqual(semver.workdir, cwd)
+        self.assertEqual(semver.props['workdir'], cwd)
 
     @pytest.mark.dev
     def test_bad_config(self):
@@ -182,26 +182,29 @@ class TestGhSemverUnitTest(unittest.TestCase):
         self.assertRegex(stderr, r"Failed to parse initial version, doesn't look like a three-level integer") 
         
     @pytest.mark.dev
-    def test_semver_bad_workdir(self):
-        stderr = None
-        try:
-            semver = Semver(workdir='bad_dir_xyz')
-        except FileNotFoundError as e:
-            stderr = str(e)    
-        self.assertEqual(stderr, 'Directory bad_dir_xyz does not exist')
+    @patch('sys.stderr', new_callable=StringIO)
+    def test_semver_bad_workdir(self, mock_stderr):
+        with self.assertRaises(SystemExit) as cm:
+            Semver(workdir='bad_dir_xyz')
+        # Assuming exit code 1 for this error, adjust if different
+        self.assertEqual(cm.exception.code, 1) 
+        # Check if the expected error message is in stderr
+        self.assertIn("Directory bad_dir_xyz does not exist", mock_stderr.getvalue())
 
     @pytest.mark.dev
     @patch.object(Semver, '_Semver__run_git')
-    def test_semver_outside_git(self, mock_run_git):
+    @patch('sys.stderr', new_callable=StringIO)
+    def test_semver_outside_git(self, mock_stderr, mock_run_git):
         # Simulate the git command returning an error
-        mock_run_git.return_value = Mock(
+        mock_run_git.return_value = ['', Mock(
             returncode=1, 
-            stderr='fatal: not a git repository (or any of the parent directories): .git\n')
-
-        with self.assertRaises(FileNotFoundError) as context:
+            stderr='fatal: not a git repository (or any of the parent directories): .git\n'
+        )]     
+        
+        with self.assertRaises(SystemExit) as cm:
             semver = Semver()
-
-        self.assertIn('fatal: not a git repository (or any of the parent directories): .git\n', str(context.exception))
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn('fatal: not a git repository (or any of the parent directories): .git\n', mock_stderr.getvalue())
 
 
 
