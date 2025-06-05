@@ -154,7 +154,7 @@ class Semver:
         args = {'prefix': prefix, 'initial': initial, 'suffix': suffix}
         for setting in args.keys():
             if args[setting]:
-                [_,_] = self.__run_git(f'git config --file {self.props['config_file']} semver.{setting} {args[setting]}')
+                [_,_] = self.__run_git(f"git config --file {self.props['config_file']} semver.{setting} {args[setting]}")
         self.__read_semver_config()
         
   
